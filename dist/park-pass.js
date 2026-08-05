@@ -2106,7 +2106,7 @@
       const passSelect = passField.querySelector("select");
       const visitSelect = visitField.querySelector("select");
       const countSelect = passCountWrapper.querySelector("select");
-      const releaseTimeSelect = releaseField.querySelector('select[data-release-part="time"]');
+      const releaseTimeInput = releaseField.querySelector('input[type="time"]');
       const releaseSecondsSelect = releaseField.querySelector('select[data-release-part="seconds"]');
       const leadInput = leadField.querySelector("input");
 
@@ -2122,7 +2122,7 @@
         numberOfPasses: countSelect?.value || state.booking.numberOfPasses
       });
       const schedule = normalizeScheduleConfig({
-        releaseTime: composeReleaseTime(releaseTimeSelect?.value, releaseSecondsSelect?.value),
+        releaseTime: composeReleaseTime(releaseTimeInput?.value, releaseSecondsSelect?.value),
         leadSeconds: leadInput?.value || state.schedule.leadSeconds
       });
 
@@ -2247,7 +2247,7 @@
     }
 
     function composeReleaseTime(timePart, secondsPart) {
-      const timeMatch = /^\s*(\d{2}):(\d{2})\s*$/.exec(String(timePart || ""));
+      const timeMatch = /^\s*(\d{2}):(\d{2})(?::(\d{2}))?\s*$/.exec(String(timePart || ""));
       const secondsMatch = /^\s*(\d{2})\s*$/.exec(String(secondsPart || ""));
       if (!timeMatch || !secondsMatch) {
         return "07:00:00";
@@ -2255,7 +2255,7 @@
 
       const hours = Number(timeMatch[1]);
       const minutes = Number(timeMatch[2]);
-      const seconds = Number(secondsMatch[1]);
+      const seconds = Number.isInteger(Number(timeMatch[3])) ? Number(timeMatch[3]) : Number(secondsMatch[1]);
       if (
         !Number.isInteger(hours) ||
         !Number.isInteger(minutes) ||
@@ -2270,21 +2270,19 @@
       return `${pad2(hours)}:${pad2(minutes)}:${pad2(seconds)}`;
     }
 
-    function buildReleaseTimeSelect(timePart) {
-      const select = createElement("select", { attrs: { "data-release-part": "time" } });
-      for (let hour = 0; hour < 24; hour += 1) {
-        for (let minute = 0; minute < 60; minute += 1) {
-          const value = `${pad2(hour)}:${pad2(minute)}`;
-          select.append(
-            createElement("option", {
-              attrs: { value },
-              textContent: value
-            })
-          );
+    function buildReleaseTimeInput(timePart) {
+      const input = createElement("input", {
+        attrs: {
+          type: "time",
+          step: "60",
+          autocomplete: "off",
+          spellcheck: "false",
+          inputmode: "numeric",
+          title: "Choose the release time"
         }
-      }
-      select.value = /^\d{2}:\d{2}$/.test(timePart) ? timePart : "07:00";
-      return select;
+      });
+      input.value = /^\d{2}:\d{2}$/.test(timePart) ? timePart : "07:00";
+      return input;
     }
 
     function buildReleaseSecondsSelect(secondsPart) {
@@ -2353,7 +2351,7 @@
 
       const countSelect = buildCountSelect(booking.numberOfPasses);
 
-      const releaseTimeSelect = buildReleaseTimeSelect(releaseParts.timePart);
+      const releaseTimeInput = buildReleaseTimeInput(releaseParts.timePart);
       const releaseSecondsSelect = buildReleaseSecondsSelect(releaseParts.secondsPart);
       const releaseTimeRow = createElement("div", { className: "bc-park-tool-grid" });
 
@@ -2382,7 +2380,7 @@
         createElement("span", { textContent: "Number of passes" }),
         countSelect
       );
-      releaseTimeRow.replaceChildren(releaseTimeSelect, releaseSecondsSelect);
+      releaseTimeRow.replaceChildren(releaseTimeInput, releaseSecondsSelect);
       releaseField.replaceChildren(
         createElement("span", { textContent: "Release time" }),
         releaseTimeRow
@@ -2437,11 +2435,11 @@
         numberOfPasses: countSelect.value
       });
       state.schedule = normalizeScheduleConfig({
-        releaseTime: composeReleaseTime(releaseTimeSelect.value, releaseSecondsSelect.value),
+        releaseTime: composeReleaseTime(releaseTimeInput.value, releaseSecondsSelect.value),
         leadSeconds: leadInput.value
       });
 
-      const inputs = [bookingDateInput, parkSelect, passSelect, visitTimeSelect, countSelect, releaseTimeSelect, releaseSecondsSelect, leadInput];
+      const inputs = [bookingDateInput, parkSelect, passSelect, visitTimeSelect, countSelect, releaseTimeInput, releaseSecondsSelect, leadInput];
       for (const input of inputs) {
         input.addEventListener("input", onFieldChange);
         input.addEventListener("change", onFieldChange);
@@ -2505,7 +2503,7 @@
         renderPreview();
       });
 
-      releaseTimeSelect.addEventListener("change", () => {
+      releaseTimeInput.addEventListener("change", () => {
         syncStateFromInputs();
         persistState();
         renderPreview();
