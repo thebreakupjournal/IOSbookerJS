@@ -290,12 +290,9 @@
     }
 
     function setModalVisible(nextVisible) {
-      state.open = !!nextVisible;
+      state.open = Boolean(nextVisible);
       backdrop.hidden = !state.open;
       document.body.style.overflow = state.open ? "hidden" : "";
-      if (state.open) {
-        render();
-      }
     }
 
     function buildParkSelect() {
