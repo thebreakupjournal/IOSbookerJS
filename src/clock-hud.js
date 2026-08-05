@@ -22,7 +22,7 @@
     const expandedLayer = createElement("div", { className: "bc-park-tool-expanded" });
     const header = createElement("div", { className: "bc-park-tool-header" });
     const dragHandle = createElement("div", { className: "bc-park-tool-title bc-park-tool-drag-handle" });
-    const titleText = createElement("strong", { textContent: "BC Parks clock" });
+    const titleText = createElement("strong", { textContent: "BC Parks" });
     const subtitleText = createElement("div", { className: "bc-park-tool-subtitle" });
     const actions = createElement("div", { className: "bc-park-tool-actions" });
     const configureButton = createElement("button", {
@@ -36,7 +36,7 @@
       textContent: "Minimize"
     });
     const clockCard = createElement("div", { className: "bc-park-tool-clock" });
-    const clockLabel = createElement("div", { className: "clock-label", textContent: "BC PARKS CLOCK" });
+    const clockLabel = createElement("div", { className: "clock-label", textContent: "Current time" });
     const clockTime = createElement("div", { className: "clock-time" });
     const clockMeta = createElement("div", { className: "clock-meta" });
     const statusCard = createElement("div", { className: "bc-park-tool-status" });
@@ -137,10 +137,10 @@
         const remainingMs = scheduleState.nextClickMs - nowMs;
         const nextClick = clockService.formatClockTime(scheduleState.nextClickMs);
         return {
-          miniStateText: "ARMED",
+          miniStateText: "Armed",
           miniValueText: `${Math.max(0, remainingMs / 1000).toFixed(1)}s`,
           miniTimeText: `Next ${nextClick}`,
-          statusLabelText: "ARMED",
+          statusLabelText: "Armed",
           statusMainText: `Next click: ${nextClick}`,
           statusDetailText: `T- ${root.dom.formatCountdownSeconds(remainingMs)}`
         };
@@ -148,43 +148,43 @@
 
       if (scheduleState.status === "clicked") {
         return {
-          miniStateText: "NEXT CLICKED",
+          miniStateText: "Clicked",
           miniValueText: scheduleState.schedulerErrorMs != null ? root.dom.formatSignedMs(scheduleState.schedulerErrorMs) : "Done",
           miniTimeText: "Tap to review",
-          statusLabelText: "NEXT CLICKED",
-          statusMainText: "NEXT CLICKED",
+          statusLabelText: "Clicked",
+          statusMainText: "Next click completed",
           statusDetailText: scheduleState.schedulerErrorMs != null ? `Scheduler error: ${root.dom.formatSignedMs(scheduleState.schedulerErrorMs)}` : "Page 1 Next was clicked."
         };
       }
 
       if (scheduleState.status === "error") {
         return {
-          miniStateText: "SCHEDULE ERROR",
+          miniStateText: "Schedule error",
           miniValueText: "Fix needed",
           miniTimeText: "Tap to retry",
-          statusLabelText: "SCHEDULE ERROR",
-          statusMainText: "SCHEDULE ERROR",
+          statusLabelText: "Error",
+          statusMainText: "Schedule error",
           statusDetailText: scheduleState.message || "An unknown scheduling error occurred."
         };
       }
 
       if (scheduleState.status === "cancelled") {
         return {
-          miniStateText: "CANCELLED",
+          miniStateText: "Cancelled",
           miniValueText: "Cleared",
           miniTimeText: "Tap to re-arm",
-          statusLabelText: "CANCELLED",
-          statusMainText: "CANCELLED",
+          statusLabelText: "Cancelled",
+          statusMainText: "Schedule cleared",
           statusDetailText: scheduleState.detail || "Outstanding timers and animation frames were cleared."
         };
       }
 
       return {
-        miniStateText: "BC PARKS CLOCK",
+        miniStateText: "BC Parks",
         miniValueText: clockService.formatClockTime(nowMs),
         miniTimeText: clockService.formatClockDate(nowMs),
-        statusLabelText: "READY",
-        statusMainText: "Prime Page 1 to schedule the Next click.",
+        statusLabelText: "Ready",
+        statusMainText: "Set the release time, then prime Page 1 when you're ready.",
         statusDetailText: `Source: ${clockService.formatSourceLine(clockSnapshot)}`
       };
     }
@@ -204,10 +204,10 @@
       miniValue.textContent = view.miniValueText;
       miniTime.textContent = view.miniTimeText;
 
-      titleText.textContent = "BC Parks clock";
+      titleText.textContent = "BC Parks";
       subtitleText.textContent = clockService.formatSourceLine(clockSnapshot);
 
-      clockLabel.textContent = "BC PARKS CLOCK";
+      clockLabel.textContent = "Current time";
       clockTime.textContent = clockService.formatClockTime(nowMs);
       clockMeta.textContent = clockService.formatSourceLine(clockSnapshot);
 

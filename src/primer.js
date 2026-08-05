@@ -203,7 +203,7 @@
     const title = createElement("h2", { textContent: "Prime Booking" });
     const subtitle = createElement("div", {
       className: "bc-park-tool-note",
-      textContent: "Fill Page 1 now, and optionally arm the scheduled Next click."
+      textContent: "Fill Page 1 now, and optionally arm the Next click."
     });
     const dismissButton = createElement("button", {
       className: "bc-park-tool-button secondary",
@@ -212,6 +212,22 @@
     });
     const body = createElement("div", { className: "bc-park-tool-modal-body" });
     const form = createElement("div", { className: "bc-park-tool-form" });
+    const bookingSection = createElement("section", { className: "bc-park-tool-section" });
+    const bookingSectionHead = createElement("div", { className: "bc-park-tool-section-head" });
+    const bookingSectionTitle = createElement("div", { className: "bc-park-tool-section-title", textContent: "Booking" });
+    const bookingSectionCopy = createElement("div", {
+      className: "bc-park-tool-section-copy",
+      textContent: "Choose the booking date, park, pass and visit time."
+    });
+    const bookingSectionBody = createElement("div", { className: "bc-park-tool-section-body" });
+    const scheduleSection = createElement("section", { className: "bc-park-tool-section" });
+    const scheduleSectionHead = createElement("div", { className: "bc-park-tool-section-head" });
+    const scheduleSectionTitle = createElement("div", { className: "bc-park-tool-section-title", textContent: "Schedule" });
+    const scheduleSectionCopy = createElement("div", {
+      className: "bc-park-tool-section-copy",
+      textContent: "Set the release time and lead seconds for the Next click."
+    });
+    const scheduleSectionBody = createElement("div", { className: "bc-park-tool-section-body" });
     const bookingGrid = createElement("div", { className: "bc-park-tool-grid" });
     const scheduleGrid = createElement("div", { className: "bc-park-tool-grid" });
     const bookingDateField = createElement("label", { className: "bc-park-tool-field" });
@@ -222,7 +238,7 @@
     const leadField = createElement("label", { className: "bc-park-tool-field" });
     const passCountWrapper = createElement("div", { className: "bc-park-tool-field" });
     const preview = createElement("div", { className: "bc-park-tool-preview" });
-    const previewLabel = createElement("div", { className: "preview-label", textContent: "Calculated Next click time" });
+    const previewLabel = createElement("div", { className: "preview-label", textContent: "Estimated click time" });
     const previewTime = createElement("div", { className: "preview-time" });
     const previewError = createElement("div", { className: "preview-error" });
     const errorBanner = createElement("div", { className: "bc-park-tool-error-banner" });
@@ -234,12 +250,12 @@
     const primeOnlyButton = createElement("button", {
       className: "bc-park-tool-button secondary",
       attrs: { type: "button" },
-      textContent: "Prime Only"
+      textContent: "Prime only"
     });
     const primeArmButton = createElement("button", {
       className: "bc-park-tool-button",
       attrs: { type: "button" },
-      textContent: "Prime & Arm"
+      textContent: "Prime and arm"
     });
 
     const state = {
@@ -508,7 +524,7 @@
 
       const releaseTimeInput = buildReleaseTimeInput(releaseParts.timePart);
       const releaseSecondsSelect = buildReleaseSecondsSelect(releaseParts.secondsPart);
-      const releaseTimeRow = createElement("div", { className: "bc-park-tool-grid" });
+      const releaseTimeRow = createElement("div", { className: "bc-park-tool-inline" });
 
       const leadInput = createElement("input", {
         attrs: { type: "number", min: "0", step: "0.001", inputmode: "decimal" }
@@ -549,15 +565,14 @@
         bookingDateField,
         parkField,
         passField,
-        visitField
+        visitField,
+        passCountWrapper
       );
 
       scheduleGrid.replaceChildren(
         releaseField,
         leadField
       );
-
-      bookingGrid.append(passCountWrapper);
 
       const passOptions = getPassOptions(booking.park);
       passSelect.replaceChildren(
@@ -750,6 +765,14 @@
 
     preview.append(previewLabel, previewTime, previewError);
 
+    bookingSectionHead.append(bookingSectionTitle, bookingSectionCopy);
+    bookingSectionBody.append(bookingGrid);
+    bookingSection.append(bookingSectionHead, bookingSectionBody);
+
+    scheduleSectionHead.append(scheduleSectionTitle, scheduleSectionCopy);
+    scheduleSectionBody.append(scheduleGrid);
+    scheduleSection.append(scheduleSectionHead, scheduleSectionBody);
+
     body.append(
       form,
       errorBanner,
@@ -759,8 +782,8 @@
     );
 
     form.append(
-      bookingGrid,
-      scheduleGrid,
+      bookingSection,
+      scheduleSection,
       createElement("div", {
         className: "bc-park-tool-note",
         textContent: "Scheduled click time is calculated as release time minus the lead seconds. Same-day only."
