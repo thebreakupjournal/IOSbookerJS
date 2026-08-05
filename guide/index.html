@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f5f7fb" />
+    <title>BC Parks Setup Guide</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="shortcut icon" href="./favicon.svg" />
+    <link rel="apple-touch-icon" href="./favicon.svg" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="backdrop backdrop-left"></div>
+    <div class="backdrop backdrop-right"></div>
+    <main class="page">
+      <section class="hero card">
+        <div class="hero-copy">
+          <div class="eyebrow">
+            <span class="eyebrow-dot"></span>
+            Bookmark-ready setup
+          </div>
+          <h1>Save this page, copy the loader once, and run the full flow from BC Parks.</h1>
+          <p class="lede">
+            The bookmarklet now handles prime, test, and arm in one pass. This page gives you the
+            bookmark icon, the exact loader string, and the runbook for lead time and timing tests.
+          </p>
+          <div class="hero-actions">
+            <button class="button primary" id="copy-bookmarklet" type="button">Copy bookmarklet</button>
+            <a class="button secondary" href="../index.html">Open local preview</a>
+          </div>
+          <p class="microcopy">
+            On iPhone, bookmark this page normally in Safari so the favicon shows up in your list.
+            Then copy the loader below into the bookmark you keep for the BC Parks page.
+          </p>
+        </div>
+        <div class="hero-panel">
+          <div class="hero-icon" aria-hidden="true">
+            <svg viewBox="0 0 128 128" role="img" focusable="false">
+              <defs>
+                <linearGradient id="guideGradient" x1="24" y1="20" x2="104" y2="112" gradientUnits="userSpaceOnUse">
+                  <stop offset="0" stop-color="#2563eb" />
+                  <stop offset="1" stop-color="#14b8a6" />
+                </linearGradient>
+              </defs>
+              <rect x="12" y="12" width="104" height="104" rx="28" fill="#fff" stroke="#dbe3ec" />
+              <circle cx="64" cy="60" r="24" fill="#f8fafc" stroke="url(#guideGradient)" stroke-width="8" />
+              <path d="M64 45v16l11 7" fill="none" stroke="#0f172a" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M49 84h30" stroke="#14b8a6" stroke-width="8" stroke-linecap="round" />
+              <path d="M83 84h10" stroke="#2563eb" stroke-width="8" stroke-linecap="round" />
+            </svg>
+          </div>
+          <div class="hero-panel-copy">
+            <strong>One bookmark, one guide, one flow.</strong>
+            <p>
+              Use the guide page for setup. Use the bookmarklet on the BC Parks page for the real
+              booking workflow.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-grid">
+        <article class="card">
+          <div class="card-kicker">Install</div>
+          <h2>Bookmark this guide page</h2>
+          <ol class="steps">
+            <li>Open this page in Safari.</li>
+            <li>Add it to bookmarks or favorites like any normal site.</li>
+            <li>The favicon in the browser list comes from <code>guide/favicon.svg</code>.</li>
+          </ol>
+          <p class="hint">
+            There is no reliable way for a normal webpage to create a Safari bookmark for you
+            automatically. The practical path is: bookmark this guide, then copy the loader once.
+          </p>
+        </article>
+
+        <article class="card">
+          <div class="card-kicker">Copy</div>
+          <h2>Bookmarklet loader</h2>
+          <p class="section-text">
+            Copy this exact loader into the bookmark you use on the BC Parks page. It fetches the
+            published bundle with cache-busting.
+          </p>
+          <div class="code-shell">
+            <textarea id="bookmarklet-code" readonly spellcheck="false"></textarea>
+          </div>
+          <div class="copy-row">
+            <button class="button primary" id="copy-code" type="button">Copy code</button>
+            <span class="status" id="copy-status">Ready to copy.</span>
+          </div>
+        </article>
+      </section>
+
+      <section class="card">
+        <div class="card-kicker">Runbook</div>
+        <h2>How to use it</h2>
+        <div class="workflow">
+          <div class="workflow-step">
+            <div class="step-number">1</div>
+            <div>
+              <strong>Open BC Parks</strong>
+              <p>Navigate to the reservation page where the form and Next button live.</p>
+            </div>
+          </div>
+          <div class="workflow-step">
+            <div class="step-number">2</div>
+            <div>
+              <strong>Prime booking</strong>
+              <p>Open the modal, choose booking date, park, pass, and visit time, then click <code>Prime only</code> or <code>Prime / arm</code>.</p>
+            </div>
+          </div>
+          <div class="workflow-step">
+            <div class="step-number">3</div>
+            <div>
+              <strong>Set the release time</strong>
+              <p>Use the Schedule tab to choose release time in <code>HH:MM:SS</code> and set lead seconds.</p>
+            </div>
+          </div>
+          <div class="workflow-step">
+            <div class="step-number">4</div>
+            <div>
+              <strong>Run timing tests</strong>
+              <p>Use <code>Test</code> to measure Next-click to <code>#firstName</code> hydration. Results appear in the Timings tab.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-grid">
+        <article class="card">
+          <div class="card-kicker">Controls</div>
+          <h2>What each button does</h2>
+          <ul class="list">
+            <li><strong>Test</strong> - primes the page, clicks Next, and stores a timing sample.</li>
+            <li><strong>Prime only</strong> - fills Page 1 and minimizes the HUD.</li>
+            <li><strong>Prime / arm</strong> - fills Page 1, then schedules the Next click.</li>
+          </ul>
+        </article>
+
+        <article class="card">
+          <div class="card-kicker">Timing</div>
+          <h2>What the Timings tab shows</h2>
+          <ul class="list">
+            <li>Average, median, fastest, and slowest run time.</li>
+            <li>A chronological list of each test run.</li>
+            <li>Copy and clear actions for managing stored samples.</li>
+          </ul>
+        </article>
+      </section>
+
+      <section class="card footer-card">
+        <div>
+          <h2>Recommended workflow</h2>
+          <p class="section-text">
+            Bookmark this page, copy the loader once, then use the modal on the BC Parks site to
+            prime, test, and arm without switching tools.
+          </p>
+        </div>
+        <a class="button secondary" href="../dist/park-pass.js">Open bundled script</a>
+      </section>
+    </main>
+    <script src="./script.js"></script>
+  </body>
+</html>

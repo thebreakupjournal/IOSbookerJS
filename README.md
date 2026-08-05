@@ -14,6 +14,7 @@ Scope for this version:
 - `dist/park-pass.js` is the file to host publicly.
 - `src/` contains the maintainable source layout.
 - `index.html` is a small local documentation page.
+- `guide/` is the bookmark-ready tutorial page with the favicon, copy button, and runbook.
 
 ## Hosting
 
@@ -46,6 +47,16 @@ javascript:(async()=>{try{const url="https://YOUR_PUBLIC_HOST/park-pass.js?t="+D
 ```
 
 If you edit the hosted file often, keep the `?t=${Date.now()}` cache-buster.
+
+## Tutorial Page
+
+The `guide/` folder is the user-facing setup page.
+
+- Bookmark the guide page in Safari so the favicon appears in your bookmarks list.
+- Use the copy button to grab the loader bookmarklet once.
+- Follow the runbook on the page to prime, test, and arm from the BC Parks site.
+
+The guide page does not replace the bookmarklet. It is the install and usage reference.
 
 ## Local Development
 
