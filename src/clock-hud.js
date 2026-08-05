@@ -24,6 +24,7 @@
     const dragHandle = createElement("div", { className: "bc-park-tool-title bc-park-tool-drag-handle" });
     const titleText = createElement("strong", { textContent: "Reservation clock" });
     const subtitleText = createElement("div", { className: "bc-park-tool-subtitle" });
+    subtitleText.hidden = true;
     const actions = createElement("div", { className: "bc-park-tool-actions" });
     const configureButton = createElement("button", {
       className: "bc-park-tool-button secondary",
@@ -207,6 +208,7 @@
 
       titleText.textContent = "Reservation clock";
       subtitleText.textContent = clockService.formatSourceLine(clockSnapshot);
+      subtitleText.hidden = true;
 
       clockLabel.textContent = "Current time";
       clockTime.textContent = clockService.formatClockTime(nowMs);

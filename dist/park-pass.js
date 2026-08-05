@@ -1290,6 +1290,7 @@
     const dragHandle = createElement("div", { className: "bc-park-tool-title bc-park-tool-drag-handle" });
     const titleText = createElement("strong", { textContent: "Reservation clock" });
     const subtitleText = createElement("div", { className: "bc-park-tool-subtitle" });
+    subtitleText.hidden = true;
     const actions = createElement("div", { className: "bc-park-tool-actions" });
     const configureButton = createElement("button", {
       className: "bc-park-tool-button secondary",
@@ -1473,6 +1474,7 @@
 
       titleText.textContent = "Reservation clock";
       subtitleText.textContent = clockService.formatSourceLine(clockSnapshot);
+      subtitleText.hidden = true;
 
       clockLabel.textContent = "Current time";
       clockTime.textContent = clockService.formatClockTime(nowMs);
@@ -2018,17 +2020,14 @@
     const timeoutMs = 6000;
     const deadline = Date.now() + timeoutMs;
     const targetPassValue = `${config.passTypeNum}: Object`;
-    const targetVisitSelector = `${SELECTORS.visitTimePrefix}${config.visitTime}`;
 
     while (Date.now() < deadline) {
       const dateInput = document.querySelector(SELECTORS.visitDate);
       const passTypeSelect = document.querySelector(SELECTORS.passType);
       const dateReady = !!dateInput && !dateInput.disabled;
       const passTypeReady = !!passTypeSelect && Array.from(passTypeSelect.options || []).some((option) => String(option.value || "").trim() === targetPassValue);
-      const visitTimeReady = !!document.querySelector(targetVisitSelector);
-      const countReady = config.park === "joffre_lakes" ? !!document.querySelector(SELECTORS.passCount) : true;
 
-      if (dateReady && passTypeReady && visitTimeReady && countReady) {
+      if (dateReady && passTypeReady) {
         return true;
       }
 
