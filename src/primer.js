@@ -311,6 +311,13 @@
       dismissButton.disabled = state.busy;
     }
 
+    function resetActionButtons() {
+      primeOnlyButton.textContent = "Prime only";
+      primeOnlyButton.classList.remove("is-success");
+      primeArmButton.textContent = "Prime and arm";
+      primeArmButton.classList.remove("is-success");
+    }
+
     function setError(message) {
       if (!message) {
         errorBanner.classList.remove("is-visible");
@@ -701,6 +708,20 @@
         syncStateFromInputs();
         persistState();
         await primeBooking(state.booking, { requireNextButton: false });
+        hud.setScheduleState({
+          status: "primed",
+          nextClickMs: null,
+          releaseMs: null,
+          leadSeconds: null,
+          schedulerErrorMs: null,
+          message: "Primed",
+          detail: "Page 1 is filled and ready."
+        });
+        primeOnlyButton.textContent = "✓ Primed";
+        primeOnlyButton.classList.add("is-success");
+        hud.minimize();
+        await wait(450);
+        setModalVisible(false);
       } catch (error) {
         const message = error.stack || error.message || String(error);
         console.error("[BCParkTool][primer] Prime Only failed", error);
@@ -723,8 +744,11 @@
             schedule: state.schedule
           });
         }
+        primeArmButton.textContent = "✓ Armed";
+        primeArmButton.classList.add("is-success");
+        hud.minimize();
+        await wait(450);
         setModalVisible(false);
-        hud.expand();
       } catch (error) {
         const message = error.stack || error.message || String(error);
         console.error("[BCParkTool][primer] Prime & Arm failed", error);
@@ -737,6 +761,7 @@
     function open() {
       state.booking = freshBookingState();
       state.schedule = normalizeScheduleConfig(readScheduleConfig());
+      resetActionButtons();
       setModalVisible(true);
       renderBookingFields();
       renderPreview();

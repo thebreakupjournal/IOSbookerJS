@@ -870,6 +870,11 @@
         box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.08), var(--bcpark-shadow);
       }
 
+      #bc-park-tool-root .bc-park-tool-hud.is-primed {
+        border-color: rgba(37, 99, 235, 0.28);
+        box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.06), var(--bcpark-shadow);
+      }
+
       #bc-park-tool-root .bc-park-tool-hud.is-error {
         border-color: rgba(220, 38, 38, 0.42);
         box-shadow: 0 0 0 1px rgba(220, 38, 38, 0.08), var(--bcpark-shadow);
@@ -1029,15 +1034,47 @@
         opacity: 0.55;
       }
 
+      #bc-park-tool-root .bc-park-tool-button.is-success {
+        color: var(--bcpark-accent-strong);
+        background: rgba(37, 99, 235, 0.08);
+        border-color: rgba(37, 99, 235, 0.2);
+      }
+
       #bc-park-tool-root .bc-park-tool-mini {
         width: 100%;
         height: 100%;
-        display: grid;
-        place-items: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
         padding: 0;
         text-align: center;
         cursor: pointer;
         touch-action: none;
+      }
+
+      #bc-park-tool-root .bc-park-tool-mini .mini-icon {
+        display: none;
+        width: 24px;
+        height: 24px;
+        flex: 0 0 auto;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        background: var(--bcpark-accent);
+        color: #ffffff;
+        font-size: 0.78rem;
+        font-weight: 800;
+        line-height: 1;
+      }
+
+      #bc-park-tool-root .bc-park-tool-hud.is-primed .mini-icon,
+      #bc-park-tool-root .bc-park-tool-hud.is-armed .mini-icon {
+        display: inline-flex;
+      }
+
+      #bc-park-tool-root .bc-park-tool-hud.is-primed .mini-icon {
+        background: #0f172a;
       }
 
       #bc-park-tool-root .bc-park-tool-mini .mini-state {
@@ -1315,8 +1352,9 @@
       attrs: { type: "button" },
       textContent: "Cancel scheduled click"
     });
-    const miniState = createElement("div", { className: "mini-state" });
+    const miniIcon = createElement("div", { className: "mini-icon" });
     const miniValue = createElement("div", { className: "mini-value" });
+    const miniState = createElement("div", { className: "mini-state" });
     const miniTime = createElement("div", { className: "mini-time" });
 
     let clockSnapshot = clockService.snapshot();
@@ -1342,7 +1380,7 @@
     let dragTapExpands = false;
 
     function defaultPosition() {
-      const width = state.minimized ? 136 : 352;
+      const width = state.minimized ? 156 : 352;
       const height = state.minimized ? 56 : 260;
       return {
         x: Math.max(16, window.innerWidth - width - 18),
@@ -1352,7 +1390,7 @@
 
     function clampPosition(nextX, nextY) {
       const rect = hud.getBoundingClientRect();
-      const width = rect.width || (state.minimized ? 136 : 352);
+      const width = rect.width || (state.minimized ? 156 : 352);
       const height = rect.height || (state.minimized ? 56 : 260);
       const maxX = Math.max(16, window.innerWidth - width - 12);
       const maxY = Math.max(16, window.innerHeight - height - 12);
@@ -1400,11 +1438,26 @@
     }
 
     function formatScheduleView(nowMs) {
+      const compactNow = clockService.formatClockTime(nowMs).replace(/\.\d{3}(?=\s)/, "");
+
+      if (scheduleState.status === "primed") {
+        return {
+          miniIconText: "âœ“",
+          miniIconKind: "primed",
+          miniValueText: compactNow,
+          miniTimeText: "",
+          statusLabelText: "Primed",
+          statusMainText: "Page 1 is filled and ready.",
+          statusDetailText: scheduleState.detail || "Prime only completed."
+        };
+      }
+
       if (scheduleState.status === "armed" && scheduleState.nextClickMs != null) {
         const nextClick = clockService.formatClockTime(scheduleState.nextClickMs);
         return {
-          miniStateText: "",
-          miniValueText: clockService.formatClockTime(nowMs).replace(/\.\d{3}(?=\s)/, ""),
+          miniIconText: "â—·",
+          miniIconKind: "armed",
+          miniValueText: compactNow,
           miniTimeText: "",
           statusLabelText: "Armed",
           statusMainText: `Next click: ${nextClick}`,
@@ -1414,8 +1467,9 @@
 
       if (scheduleState.status === "clicked") {
         return {
-          miniStateText: "",
-          miniValueText: clockService.formatClockTime(nowMs).replace(/\.\d{3}(?=\s)/, ""),
+          miniIconText: "",
+          miniIconKind: "",
+          miniValueText: compactNow,
           miniTimeText: "",
           statusLabelText: "Clicked",
           statusMainText: "Next click completed",
@@ -1425,8 +1479,9 @@
 
       if (scheduleState.status === "error") {
         return {
-          miniStateText: "",
-          miniValueText: clockService.formatClockTime(nowMs).replace(/\.\d{3}(?=\s)/, ""),
+          miniIconText: "",
+          miniIconKind: "",
+          miniValueText: compactNow,
           miniTimeText: "",
           statusLabelText: "Error",
           statusMainText: "Schedule error",
@@ -1436,8 +1491,9 @@
 
       if (scheduleState.status === "cancelled") {
         return {
-          miniStateText: "",
-          miniValueText: clockService.formatClockTime(nowMs).replace(/\.\d{3}(?=\s)/, ""),
+          miniIconText: "",
+          miniIconKind: "",
+          miniValueText: compactNow,
           miniTimeText: "",
           statusLabelText: "Cancelled",
           statusMainText: "Schedule cleared",
@@ -1446,8 +1502,9 @@
       }
 
       return {
-        miniStateText: "",
-        miniValueText: clockService.formatClockTime(nowMs).replace(/\.\d{3}(?=\s)/, ""),
+        miniIconText: "",
+        miniIconKind: "",
+        miniValueText: compactNow,
         miniTimeText: "",
         statusLabelText: "Ready",
         statusMainText: "Set the release time, then prime Page 1 when you're ready.",
@@ -1457,6 +1514,7 @@
 
     function render() {
       hud.classList.toggle("is-minimized", state.minimized);
+      hud.classList.toggle("is-primed", scheduleState.status === "primed");
       hud.classList.toggle("is-armed", scheduleState.status === "armed");
       hud.classList.toggle("is-error", scheduleState.status === "error");
 
@@ -1466,9 +1524,11 @@
       const nowMs = clockSnapshot.nowMs || Date.now();
       const view = formatScheduleView(nowMs);
 
-      miniState.hidden = true;
+      miniIcon.hidden = !view.miniIconText;
+      miniIcon.className = `mini-icon${view.miniIconKind ? ` is-${view.miniIconKind}` : ""}`;
+      miniIcon.textContent = view.miniIconText || "";
       miniTime.hidden = true;
-      miniState.textContent = view.miniStateText;
+      miniState.hidden = true;
       miniValue.textContent = view.miniValueText;
       miniTime.textContent = view.miniTimeText;
 
@@ -1598,13 +1658,7 @@
     hud.append(miniLayer, expandedLayer);
     shell.appendChild(hud);
 
-    miniLayer.append(
-      createElement("div", { className: "mini-state" }, []),
-      createElement("div", { className: "mini-value" }, []),
-      createElement("div", { className: "mini-time" }, [])
-    );
-
-    miniLayer.replaceChildren(miniState, miniValue, miniTime);
+    miniLayer.replaceChildren(miniIcon, miniValue, miniState, miniTime);
 
     header.append(dragHandle, actions);
     dragHandle.append(titleText, subtitleText);
@@ -2206,6 +2260,13 @@
       dismissButton.disabled = state.busy;
     }
 
+    function resetActionButtons() {
+      primeOnlyButton.textContent = "Prime only";
+      primeOnlyButton.classList.remove("is-success");
+      primeArmButton.textContent = "Prime and arm";
+      primeArmButton.classList.remove("is-success");
+    }
+
     function setError(message) {
       if (!message) {
         errorBanner.classList.remove("is-visible");
@@ -2596,6 +2657,20 @@
         syncStateFromInputs();
         persistState();
         await primeBooking(state.booking, { requireNextButton: false });
+        hud.setScheduleState({
+          status: "primed",
+          nextClickMs: null,
+          releaseMs: null,
+          leadSeconds: null,
+          schedulerErrorMs: null,
+          message: "Primed",
+          detail: "Page 1 is filled and ready."
+        });
+        primeOnlyButton.textContent = "âœ“ Primed";
+        primeOnlyButton.classList.add("is-success");
+        hud.minimize();
+        await wait(450);
+        setModalVisible(false);
       } catch (error) {
         const message = error.stack || error.message || String(error);
         console.error("[BCParkTool][primer] Prime Only failed", error);
@@ -2618,8 +2693,11 @@
             schedule: state.schedule
           });
         }
+        primeArmButton.textContent = "âœ“ Armed";
+        primeArmButton.classList.add("is-success");
+        hud.minimize();
+        await wait(450);
         setModalVisible(false);
-        hud.expand();
       } catch (error) {
         const message = error.stack || error.message || String(error);
         console.error("[BCParkTool][primer] Prime & Arm failed", error);
@@ -2632,6 +2710,7 @@
     function open() {
       state.booking = freshBookingState();
       state.schedule = normalizeScheduleConfig(readScheduleConfig());
+      resetActionButtons();
       setModalVisible(true);
       renderBookingFields();
       renderPreview();

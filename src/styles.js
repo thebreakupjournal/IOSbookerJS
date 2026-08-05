@@ -76,6 +76,11 @@
         box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.08), var(--bcpark-shadow);
       }
 
+      #bc-park-tool-root .bc-park-tool-hud.is-primed {
+        border-color: rgba(37, 99, 235, 0.28);
+        box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.06), var(--bcpark-shadow);
+      }
+
       #bc-park-tool-root .bc-park-tool-hud.is-error {
         border-color: rgba(220, 38, 38, 0.42);
         box-shadow: 0 0 0 1px rgba(220, 38, 38, 0.08), var(--bcpark-shadow);
@@ -235,15 +240,47 @@
         opacity: 0.55;
       }
 
+      #bc-park-tool-root .bc-park-tool-button.is-success {
+        color: var(--bcpark-accent-strong);
+        background: rgba(37, 99, 235, 0.08);
+        border-color: rgba(37, 99, 235, 0.2);
+      }
+
       #bc-park-tool-root .bc-park-tool-mini {
         width: 100%;
         height: 100%;
-        display: grid;
-        place-items: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
         padding: 0;
         text-align: center;
         cursor: pointer;
         touch-action: none;
+      }
+
+      #bc-park-tool-root .bc-park-tool-mini .mini-icon {
+        display: none;
+        width: 24px;
+        height: 24px;
+        flex: 0 0 auto;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        background: var(--bcpark-accent);
+        color: #ffffff;
+        font-size: 0.78rem;
+        font-weight: 800;
+        line-height: 1;
+      }
+
+      #bc-park-tool-root .bc-park-tool-hud.is-primed .mini-icon,
+      #bc-park-tool-root .bc-park-tool-hud.is-armed .mini-icon {
+        display: inline-flex;
+      }
+
+      #bc-park-tool-root .bc-park-tool-hud.is-primed .mini-icon {
+        background: #0f172a;
       }
 
       #bc-park-tool-root .bc-park-tool-mini .mini-state {

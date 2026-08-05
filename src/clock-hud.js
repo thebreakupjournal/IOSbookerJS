@@ -49,8 +49,9 @@
       attrs: { type: "button" },
       textContent: "Cancel scheduled click"
     });
-    const miniState = createElement("div", { className: "mini-state" });
+    const miniIcon = createElement("div", { className: "mini-icon" });
     const miniValue = createElement("div", { className: "mini-value" });
+    const miniState = createElement("div", { className: "mini-state" });
     const miniTime = createElement("div", { className: "mini-time" });
 
     let clockSnapshot = clockService.snapshot();
@@ -76,7 +77,7 @@
     let dragTapExpands = false;
 
     function defaultPosition() {
-      const width = state.minimized ? 136 : 352;
+      const width = state.minimized ? 156 : 352;
       const height = state.minimized ? 56 : 260;
       return {
         x: Math.max(16, window.innerWidth - width - 18),
@@ -86,7 +87,7 @@
 
     function clampPosition(nextX, nextY) {
       const rect = hud.getBoundingClientRect();
-      const width = rect.width || (state.minimized ? 136 : 352);
+      const width = rect.width || (state.minimized ? 156 : 352);
       const height = rect.height || (state.minimized ? 56 : 260);
       const maxX = Math.max(16, window.innerWidth - width - 12);
       const maxY = Math.max(16, window.innerHeight - height - 12);
@@ -134,11 +135,26 @@
     }
 
     function formatScheduleView(nowMs) {
+      const compactNow = clockService.formatClockTime(nowMs).replace(/\.\d{3}(?=\s)/, "");
+
+      if (scheduleState.status === "primed") {
+        return {
+          miniIconText: "✓",
+          miniIconKind: "primed",
+          miniValueText: compactNow,
+          miniTimeText: "",
+          statusLabelText: "Primed",
+          statusMainText: "Page 1 is filled and ready.",
+          statusDetailText: scheduleState.detail || "Prime only completed."
+        };
+      }
+
       if (scheduleState.status === "armed" && scheduleState.nextClickMs != null) {
         const nextClick = clockService.formatClockTime(scheduleState.nextClickMs);
         return {
-          miniStateText: "",
-          miniValueText: clockService.formatClockTime(nowMs).replace(/\.\d{3}(?=\s)/, ""),
+          miniIconText: "◷",
+          miniIconKind: "armed",
+          miniValueText: compactNow,
           miniTimeText: "",
           statusLabelText: "Armed",
           statusMainText: `Next click: ${nextClick}`,
@@ -148,8 +164,9 @@
 
       if (scheduleState.status === "clicked") {
         return {
-          miniStateText: "",
-          miniValueText: clockService.formatClockTime(nowMs).replace(/\.\d{3}(?=\s)/, ""),
+          miniIconText: "",
+          miniIconKind: "",
+          miniValueText: compactNow,
           miniTimeText: "",
           statusLabelText: "Clicked",
           statusMainText: "Next click completed",
@@ -159,8 +176,9 @@
 
       if (scheduleState.status === "error") {
         return {
-          miniStateText: "",
-          miniValueText: clockService.formatClockTime(nowMs).replace(/\.\d{3}(?=\s)/, ""),
+          miniIconText: "",
+          miniIconKind: "",
+          miniValueText: compactNow,
           miniTimeText: "",
           statusLabelText: "Error",
           statusMainText: "Schedule error",
@@ -170,8 +188,9 @@
 
       if (scheduleState.status === "cancelled") {
         return {
-          miniStateText: "",
-          miniValueText: clockService.formatClockTime(nowMs).replace(/\.\d{3}(?=\s)/, ""),
+          miniIconText: "",
+          miniIconKind: "",
+          miniValueText: compactNow,
           miniTimeText: "",
           statusLabelText: "Cancelled",
           statusMainText: "Schedule cleared",
@@ -180,8 +199,9 @@
       }
 
       return {
-        miniStateText: "",
-        miniValueText: clockService.formatClockTime(nowMs).replace(/\.\d{3}(?=\s)/, ""),
+        miniIconText: "",
+        miniIconKind: "",
+        miniValueText: compactNow,
         miniTimeText: "",
         statusLabelText: "Ready",
         statusMainText: "Set the release time, then prime Page 1 when you're ready.",
@@ -191,6 +211,7 @@
 
     function render() {
       hud.classList.toggle("is-minimized", state.minimized);
+      hud.classList.toggle("is-primed", scheduleState.status === "primed");
       hud.classList.toggle("is-armed", scheduleState.status === "armed");
       hud.classList.toggle("is-error", scheduleState.status === "error");
 
@@ -200,9 +221,11 @@
       const nowMs = clockSnapshot.nowMs || Date.now();
       const view = formatScheduleView(nowMs);
 
-      miniState.hidden = true;
+      miniIcon.hidden = !view.miniIconText;
+      miniIcon.className = `mini-icon${view.miniIconKind ? ` is-${view.miniIconKind}` : ""}`;
+      miniIcon.textContent = view.miniIconText || "";
       miniTime.hidden = true;
-      miniState.textContent = view.miniStateText;
+      miniState.hidden = true;
       miniValue.textContent = view.miniValueText;
       miniTime.textContent = view.miniTimeText;
 
@@ -332,13 +355,7 @@
     hud.append(miniLayer, expandedLayer);
     shell.appendChild(hud);
 
-    miniLayer.append(
-      createElement("div", { className: "mini-state" }, []),
-      createElement("div", { className: "mini-value" }, []),
-      createElement("div", { className: "mini-time" }, [])
-    );
-
-    miniLayer.replaceChildren(miniState, miniValue, miniTime);
+    miniLayer.replaceChildren(miniIcon, miniValue, miniState, miniTime);
 
     header.append(dragHandle, actions);
     dragHandle.append(titleText, subtitleText);
