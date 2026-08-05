@@ -120,9 +120,9 @@
     }
     if (snapshot.sourceKind === "http") {
       const rtt = snapshot.roundTripMs != null ? `${Math.round(snapshot.roundTripMs)} ms` : "n/a";
-      return `BC Parks HTTP time · RTT ${rtt} · offset ${formatOffset(snapshot.offsetMs)}`;
+      return `BC Parks HTTP time | RTT ${rtt} | offset ${formatOffset(snapshot.offsetMs)}`;
     }
-    return "Local fallback · using device clock";
+    return "Local fallback | using device clock";
   }
 
   function formatTimeZoneLabel(snapshot) {

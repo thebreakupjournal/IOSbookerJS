@@ -30,7 +30,8 @@
   const STORAGE_KEYS = Object.freeze({
     clockState: "bcParkTool.clockState",
     bookingConfig: "bcParkTool.bookingConfig",
-    scheduleConfig: "bcParkTool.scheduleConfig"
+    scheduleConfig: "bcParkTool.scheduleConfig",
+    turnstileRuns: "parkPassTurnstileRuns"
   });
 
   const SELECTORS = Object.freeze({
@@ -38,7 +39,8 @@
     passType: "#passType",
     visitTimePrefix: "input#visitTime",
     passCount: "select#passCount",
-    nextButton: 'button[data-bs-target="#turnstileModal"]'
+    nextButton: 'button[data-bs-target="#turnstileModal"]',
+    turnstileComplete: "#firstName"
   });
 
   const TIME_ZONE = "America/Los_Angeles";

@@ -206,6 +206,10 @@
       }
 
       #bc-park-tool-root .bc-park-tool-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
         appearance: none;
         border: 1px solid var(--bcpark-border);
         border-radius: 14px;
@@ -216,6 +220,21 @@
         color: #0f172a;
         background: #ffffff;
         box-shadow: 0 1px 0 rgba(15, 23, 42, 0.03);
+      }
+
+      #bc-park-tool-root .bc-park-tool-button .bc-park-tool-button-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 14px;
+        height: 14px;
+        flex: 0 0 auto;
+      }
+
+      #bc-park-tool-root .bc-park-tool-button .bc-park-tool-button-icon svg {
+        display: block;
+        width: 14px;
+        height: 14px;
       }
 
       #bc-park-tool-root .bc-park-tool-button.primary {
@@ -274,6 +293,12 @@
         line-height: 1;
       }
 
+      #bc-park-tool-root .bc-park-tool-mini .mini-icon svg {
+        display: block;
+        width: 14px;
+        height: 14px;
+      }
+
       #bc-park-tool-root .bc-park-tool-hud.is-primed .mini-icon,
       #bc-park-tool-root .bc-park-tool-hud.is-armed .mini-icon {
         display: inline-flex;
@@ -281,6 +306,10 @@
 
       #bc-park-tool-root .bc-park-tool-hud.is-primed .mini-icon {
         background: #0f172a;
+      }
+
+      #bc-park-tool-root .bc-park-tool-hud.is-armed .mini-icon {
+        background: var(--bcpark-accent);
       }
 
       #bc-park-tool-root .bc-park-tool-mini .mini-state {
@@ -340,6 +369,40 @@
         padding: 20px 22px 22px;
         display: grid;
         gap: 16px;
+      }
+
+      #bc-park-tool-root .bc-park-tool-tabs {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      #bc-park-tool-root .bc-park-tool-tab {
+        appearance: none;
+        border: 1px solid var(--bcpark-border);
+        border-radius: 14px;
+        padding: 11px 14px;
+        font: inherit;
+        font-size: 0.9rem;
+        font-weight: 650;
+        color: var(--bcpark-muted);
+        background: #f8fafc;
+      }
+
+      #bc-park-tool-root .bc-park-tool-tab.is-active {
+        color: var(--bcpark-text);
+        background: #ffffff;
+        border-color: var(--bcpark-border-strong);
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+      }
+
+      #bc-park-tool-root .bc-park-tool-tab-panel {
+        display: grid;
+        gap: 16px;
+      }
+
+      #bc-park-tool-root .bc-park-tool-tab-panel[hidden] {
+        display: none;
       }
 
       #bc-park-tool-root .bc-park-tool-form {
@@ -450,10 +513,106 @@
       }
 
       #bc-park-tool-root .bc-park-tool-modal-actions {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: flex-end;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 10px;
+      }
+
+      @media (max-width: 640px) {
+        #bc-park-tool-root .bc-park-tool-modal-actions,
+        #bc-park-tool-root .bc-park-tool-tabs,
+        #bc-park-tool-root .bc-park-tool-timing-summary,
+        #bc-park-tool-root .bc-park-tool-timing-actions {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      #bc-park-tool-root .bc-park-tool-timing-summary {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      #bc-park-tool-root .bc-park-tool-metric {
+        display: grid;
+        gap: 4px;
+        padding: 14px 16px;
+        border-radius: 18px;
+        border: 1px solid var(--bcpark-border);
+        background: #f8fafc;
+      }
+
+      #bc-park-tool-root .bc-park-tool-metric-label {
+        font-size: 0.72rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--bcpark-muted);
+      }
+
+      #bc-park-tool-root .bc-park-tool-metric-value {
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        font-variant-numeric: tabular-nums;
+      }
+
+      #bc-park-tool-root .bc-park-tool-metric-meta {
+        font-size: 0.8rem;
+        color: var(--bcpark-muted);
+      }
+
+      #bc-park-tool-root .bc-park-tool-timing-actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      #bc-park-tool-root .bc-park-tool-timing-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      #bc-park-tool-root .bc-park-tool-timing-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 14px;
+        border-radius: 16px;
+        border: 1px solid var(--bcpark-border);
+        background: #ffffff;
+      }
+
+      #bc-park-tool-root .bc-park-tool-timing-row-main {
+        min-width: 0;
+      }
+
+      #bc-park-tool-root .bc-park-tool-timing-row strong {
+        display: block;
+        font-size: 0.98rem;
+        letter-spacing: -0.02em;
+        font-variant-numeric: tabular-nums;
+      }
+
+      #bc-park-tool-root .bc-park-tool-timing-row time {
+        display: block;
+        margin-top: 3px;
+        font-size: 0.8rem;
+        color: var(--bcpark-muted);
+      }
+
+      #bc-park-tool-root .bc-park-tool-timing-row button {
+        padding-inline: 12px;
+        white-space: nowrap;
+      }
+
+      #bc-park-tool-root .bc-park-tool-timing-empty {
+        padding: 16px;
+        border-radius: 16px;
+        border: 1px dashed var(--bcpark-border);
+        background: #f8fafc;
+        color: var(--bcpark-muted);
+        text-align: center;
       }
 
       #bc-park-tool-root .bc-park-tool-section {

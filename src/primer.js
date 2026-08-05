@@ -9,7 +9,18 @@
     setNativeValue,
     dispatchFormEvents
   } = root.dom;
-  const { normalizeBookingConfig, normalizeScheduleConfig, writeBookingConfig, writeScheduleConfig, readBookingConfig, readScheduleConfig } = root.storage;
+  const {
+    normalizeBookingConfig,
+    normalizeScheduleConfig,
+    writeBookingConfig,
+    writeScheduleConfig,
+    readBookingConfig,
+    readScheduleConfig,
+    readTurnstileRuns,
+    writeTurnstileRuns,
+    appendTurnstileRun,
+    clearTurnstileRuns
+  } = root.storage;
 
   function getPassOptions(parkKey) {
     return PARKS[parkKey]?.passes || PARKS[DEFAULT_BOOKING_CONFIG.park].passes;
@@ -208,6 +219,19 @@
       textContent: "Dismiss"
     });
     const body = createElement("div", { className: "bc-park-tool-modal-body" });
+    const tabs = createElement("div", { className: "bc-park-tool-tabs" });
+    const bookingTabButton = createElement("button", {
+      className: "bc-park-tool-tab",
+      attrs: { type: "button" },
+      textContent: "Booking"
+    });
+    const timingsTabButton = createElement("button", {
+      className: "bc-park-tool-tab",
+      attrs: { type: "button" },
+      textContent: "Timings"
+    });
+    const bookingPanel = createElement("div", { className: "bc-park-tool-tab-panel" });
+    const timingsPanel = createElement("div", { className: "bc-park-tool-tab-panel" });
     const form = createElement("div", { className: "bc-park-tool-form" });
     const bookingSection = createElement("section", { className: "bc-park-tool-section" });
     const bookingSectionHead = createElement("div", { className: "bc-park-tool-section-head" });
@@ -238,12 +262,38 @@
     const previewLabel = createElement("div", { className: "preview-label", textContent: "Estimated click time" });
     const previewTime = createElement("div", { className: "preview-time" });
     const previewError = createElement("div", { className: "preview-error" });
+    const timingSummary = createElement("div", { className: "bc-park-tool-timing-summary" });
+    const timingNote = createElement("div", {
+      className: "bc-park-tool-note",
+      textContent: "Run Test to capture timing samples from Next click to the first booking field."
+    });
+    const timingActions = createElement("div", { className: "bc-park-tool-timing-actions" });
+    const timingCopyButton = createElement("button", {
+      className: "bc-park-tool-button secondary",
+      attrs: { type: "button" },
+      textContent: "Copy results"
+    });
+    const timingClearButton = createElement("button", {
+      className: "bc-park-tool-button secondary",
+      attrs: { type: "button" },
+      textContent: "Clear all"
+    });
+    const timingList = createElement("div", { className: "bc-park-tool-timing-list" });
+    const timingEmpty = createElement("div", {
+      className: "bc-park-tool-timing-empty",
+      textContent: "No runs saved yet."
+    });
     const errorBanner = createElement("div", { className: "bc-park-tool-error-banner" });
     const warning = createElement("div", {
       className: "bc-park-tool-note warn",
       textContent: "Keep Safari visible and prevent the phone from locking."
     });
     const actions = createElement("div", { className: "bc-park-tool-modal-actions" });
+    const testButton = createElement("button", {
+      className: "bc-park-tool-button secondary",
+      attrs: { type: "button" },
+      textContent: "Test"
+    });
     const primeOnlyButton = createElement("button", {
       className: "bc-park-tool-button secondary",
       attrs: { type: "button" },
@@ -252,12 +302,13 @@
     const primeArmButton = createElement("button", {
       className: "bc-park-tool-button primary",
       attrs: { type: "button" },
-      textContent: "Prime and arm"
+      textContent: "Prime / arm"
     });
 
     const state = {
       booking: readBookingConfig(),
       schedule: readScheduleConfig(),
+      activeTab: "booking",
       open: false,
       busy: false
     };
@@ -265,6 +316,218 @@
     function freshBookingState() {
       return normalizeBookingConfig({
         ...readBookingConfig()
+      });
+    }
+
+    function iconMarkup(kind) {
+      if (kind === "check") {
+        return `
+          <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+            <path d="M6.6 10.5 3.9 7.8a1 1 0 1 1 1.4-1.4l1.3 1.3 4-4a1 1 0 1 1 1.4 1.4L8 11a1 1 0 0 1-1.4 0Z" fill="currentColor"/>
+          </svg>
+        `;
+      }
+
+      if (kind === "clock") {
+        return `
+          <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+            <path d="M8 1.5a6.5 6.5 0 1 0 6.5 6.5A6.51 6.51 0 0 0 8 1.5Zm.75 3.25a.75.75 0 0 0-1.5 0v3.03c0 .2.08.39.22.53l1.92 1.92a.75.75 0 1 0 1.06-1.06L8.75 8.47Z" fill="currentColor"/>
+          </svg>
+        `;
+      }
+
+      return "";
+    }
+
+    function setButtonContent(button, text, iconKind = "") {
+      button.replaceChildren();
+      if (iconKind) {
+        button.append(
+          createElement("span", {
+            className: "bc-park-tool-button-icon",
+            attrs: { "aria-hidden": "true" },
+            html: iconMarkup(iconKind)
+          })
+        );
+      }
+      button.append(createElement("span", { className: "bc-park-tool-button-label", textContent: text }));
+    }
+
+    function setActiveTab(nextTab) {
+      state.activeTab = nextTab === "timings" ? "timings" : "booking";
+      bookingTabButton.classList.toggle("is-active", state.activeTab === "booking");
+      timingsTabButton.classList.toggle("is-active", state.activeTab === "timings");
+      bookingPanel.hidden = state.activeTab !== "booking";
+      timingsPanel.hidden = state.activeTab !== "timings";
+      if (state.activeTab === "timings") {
+        renderTimingPanel();
+      }
+    }
+
+    function summarizeTimingRuns(runs) {
+      const values = runs.map((run) => run.ms).filter((value) => Number.isFinite(value));
+      const average = values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : null;
+      const sorted = [...values].sort((a, b) => a - b);
+      const median = sorted.length
+        ? (sorted.length % 2 ? sorted[Math.floor(sorted.length / 2)] : Math.round((sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2))
+        : null;
+      const fastest = values.length ? Math.min(...values) : null;
+      const slowest = values.length ? Math.max(...values) : null;
+
+      return {
+        count: runs.length,
+        average,
+        median,
+        fastest,
+        slowest
+      };
+    }
+
+    function formatTimingValue(value) {
+      return Number.isFinite(value) ? `${Math.round(value)} ms` : "—";
+    }
+
+    function formatTimingTimestamp(ts) {
+      const date = new Date(ts);
+      return Number.isFinite(date.getTime()) ? date.toLocaleString() : "Unknown time";
+    }
+
+    function buildTimingReport(runs) {
+      const summary = summarizeTimingRuns(runs);
+      return [
+        "Turnstile timing results",
+        `Runs: ${summary.count}`,
+        `Average: ${formatTimingValue(summary.average)}`,
+        `Median: ${formatTimingValue(summary.median)}`,
+        `Fastest: ${formatTimingValue(summary.fastest)}`,
+        `Slowest: ${formatTimingValue(summary.slowest)}`,
+        "",
+        ...runs.map((run, index) => `${index + 1}. ${formatTimingValue(run.ms)} - ${formatTimingTimestamp(run.ts)}`)
+      ].join("\n");
+    }
+
+    function renderTimingPanel() {
+      const runs = readTurnstileRuns();
+      const summary = summarizeTimingRuns(runs);
+      const metrics = [
+        ["Average", summary.average],
+        ["Median", summary.median],
+        ["Fastest", summary.fastest],
+        ["Slowest", summary.slowest]
+      ];
+
+      timingSummary.replaceChildren(
+        ...metrics.map(([label, value]) => createElement("div", { className: "bc-park-tool-metric" }, [
+          createElement("div", { className: "bc-park-tool-metric-label", textContent: label }),
+          createElement("div", { className: "bc-park-tool-metric-value", textContent: formatTimingValue(value) }),
+          createElement("div", { className: "bc-park-tool-metric-meta", textContent: `${summary.count} saved run${summary.count === 1 ? "" : "s"}` })
+        ]))
+      );
+
+      timingList.replaceChildren();
+      if (!runs.length) {
+        timingList.append(timingEmpty);
+      } else {
+        for (const run of [...runs].reverse()) {
+          const deleteButton = createElement("button", {
+            className: "bc-park-tool-button danger",
+            attrs: { type: "button" },
+            textContent: "Delete"
+          });
+          const row = createElement("div", { className: "bc-park-tool-timing-row" }, [
+            createElement("div", { className: "bc-park-tool-timing-row-main" }, [
+              createElement("strong", { textContent: formatTimingValue(run.ms) }),
+              createElement("time", { textContent: formatTimingTimestamp(run.ts) })
+            ]),
+            deleteButton
+          ]);
+
+          deleteButton.addEventListener("click", () => {
+            const nextRuns = readTurnstileRuns().filter((item) => item.id !== run.id);
+            writeTurnstileRuns(nextRuns);
+            renderTimingPanel();
+          });
+
+          timingList.append(row);
+        }
+      }
+
+      timingCopyButton.disabled = state.busy || !runs.length;
+      timingClearButton.disabled = state.busy || !runs.length;
+    }
+
+    function copyTimingResults() {
+      const runs = readTurnstileRuns();
+      const text = buildTimingReport(runs);
+      if (!runs.length) {
+        return Promise.resolve();
+      }
+      if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+        return navigator.clipboard.writeText(text).then(() => {
+          setButtonContent(timingCopyButton, "Copied");
+          window.setTimeout(() => {
+            setButtonContent(timingCopyButton, "Copy results");
+          }, 1200);
+        }).catch(() => {
+          window.prompt("Copy results", text);
+        });
+      }
+      window.prompt("Copy results", text);
+      return Promise.resolve();
+    }
+
+    async function runTurnstileTimingTest(nextButton) {
+      if (document.querySelector(SELECTORS.turnstileComplete)) {
+        return { skipped: true };
+      }
+      if (!nextButton) {
+        throw new Error("Next button not found.");
+      }
+      if (nextButton.disabled) {
+        throw new Error("Next button is disabled.");
+      }
+
+      const completionSelector = SELECTORS.turnstileComplete;
+      const start = performance.now();
+      let done = false;
+
+      return await new Promise((resolve, reject) => {
+        const cleanup = () => {
+          observer.disconnect();
+          clearInterval(intervalId);
+          clearTimeout(timeoutId);
+        };
+
+        const finish = () => {
+          if (done || !document.querySelector(completionSelector)) {
+            return;
+          }
+          done = true;
+          cleanup();
+          resolve({
+            ms: Math.round(performance.now() - start)
+          });
+        };
+
+        const observer = new MutationObserver(finish);
+        observer.observe(document.documentElement, { childList: true, subtree: true });
+        const intervalId = setInterval(finish, 50);
+        const timeoutId = setTimeout(() => {
+          if (!done) {
+            cleanup();
+            reject(new Error("Timing test timed out."));
+          }
+        }, 30000);
+
+        try {
+          nextButton.click();
+        } catch (error) {
+          cleanup();
+          reject(new Error(`Next button click failed: ${error.message || String(error)}`));
+          return;
+        }
+
+        finish();
       });
     }
 
@@ -306,15 +569,22 @@
 
     function setBusy(nextBusy) {
       state.busy = !!nextBusy;
+      testButton.disabled = state.busy;
       primeOnlyButton.disabled = state.busy;
       primeArmButton.disabled = state.busy;
       dismissButton.disabled = state.busy;
+      bookingTabButton.disabled = state.busy;
+      timingsTabButton.disabled = state.busy;
+      timingCopyButton.disabled = state.busy || !readTurnstileRuns().length;
+      timingClearButton.disabled = state.busy || !readTurnstileRuns().length;
     }
 
     function resetActionButtons() {
-      primeOnlyButton.textContent = "Prime only";
+      setButtonContent(testButton, "Test");
+      testButton.classList.remove("is-success");
+      setButtonContent(primeOnlyButton, "Prime only");
       primeOnlyButton.classList.remove("is-success");
-      primeArmButton.textContent = "Prime and arm";
+      setButtonContent(primeArmButton, "Prime / arm");
       primeArmButton.classList.remove("is-success");
     }
 
@@ -717,7 +987,7 @@
           message: "Primed",
           detail: "Page 1 is filled and ready."
         });
-        primeOnlyButton.textContent = "✓ Primed";
+        setButtonContent(primeOnlyButton, "Primed", "check");
         primeOnlyButton.classList.add("is-success");
         hud.minimize();
         await wait(450);
@@ -725,6 +995,51 @@
       } catch (error) {
         const message = error.stack || error.message || String(error);
         console.error("[BCParkTool][primer] Prime Only failed", error);
+        setError(message);
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    async function handleTest() {
+      try {
+        setError("");
+        setBusy(true);
+        syncStateFromInputs();
+        persistState();
+        await primeBooking(state.booking, { requireNextButton: true });
+        setActiveTab("timings");
+
+        const nextButton = document.querySelector(SELECTORS.nextButton);
+        if (!nextButton) {
+          throw new Error("Next button not found.");
+        }
+
+        hud.minimize();
+        setModalVisible(false);
+
+        const result = await runTurnstileTimingTest(nextButton);
+        if (result.skipped) {
+          setActiveTab("timings");
+          renderTimingPanel();
+          return;
+        }
+
+        appendTurnstileRun({
+          id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+          ms: result.ms,
+          ts: Date.now()
+        });
+
+        setButtonContent(testButton, "Tested", "check");
+        testButton.classList.add("is-success");
+        setActiveTab("timings");
+        renderTimingPanel();
+      } catch (error) {
+        const message = error.stack || error.message || String(error);
+        console.error("[BCParkTool][primer] Test failed", error);
+        setModalVisible(true);
+        setActiveTab("timings");
         setError(message);
       } finally {
         setBusy(false);
@@ -744,7 +1059,7 @@
             schedule: state.schedule
           });
         }
-        primeArmButton.textContent = "✓ Armed";
+        setButtonContent(primeArmButton, "Armed", "clock");
         primeArmButton.classList.add("is-success");
         hud.minimize();
         await wait(450);
@@ -766,6 +1081,8 @@
       setModalVisible(true);
       renderBookingFields();
       renderPreview();
+      renderTimingPanel();
+      setActiveTab(state.activeTab);
       setError("");
       setBusy(false);
     }
@@ -775,12 +1092,28 @@
     }
 
     dismissButton.addEventListener("click", close);
+    testButton.addEventListener("click", handleTest);
     primeOnlyButton.addEventListener("click", handlePrimeOnly);
     primeArmButton.addEventListener("click", handlePrimeAndArm);
+    bookingTabButton.addEventListener("click", () => setActiveTab("booking"));
+    timingsTabButton.addEventListener("click", () => setActiveTab("timings"));
+    timingCopyButton.addEventListener("click", () => {
+      copyTimingResults();
+    });
+    timingClearButton.addEventListener("click", () => {
+      if (readTurnstileRuns().length === 0) {
+        return;
+      }
+      if (window.confirm("Delete every saved timing run?")) {
+        clearTurnstileRuns();
+        renderTimingPanel();
+      }
+    });
 
     titleWrap.append(title, subtitle);
     header.append(titleWrap, dismissButton);
-    actions.append(primeOnlyButton, primeArmButton);
+    tabs.append(bookingTabButton, timingsTabButton);
+    actions.append(testButton, primeOnlyButton, primeArmButton);
 
     preview.append(previewLabel, previewTime, previewError);
 
@@ -792,7 +1125,10 @@
     scheduleSectionBody.append(scheduleGrid);
     scheduleSection.append(scheduleSectionHead, scheduleSectionBody);
 
-    body.append(
+    timingActions.append(timingCopyButton, timingClearButton);
+    timingsPanel.append(timingSummary, timingNote, timingList, timingActions);
+
+    bookingPanel.append(
       form,
       errorBanner,
       preview,
@@ -808,6 +1144,8 @@
         textContent: "Scheduled click time is calculated as release time minus the lead seconds. Same-day only."
       })
     );
+
+    body.append(tabs, bookingPanel, timingsPanel);
 
     modal.append(header, body);
     backdrop.appendChild(modal);

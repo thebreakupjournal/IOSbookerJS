@@ -1,8 +1,28 @@
 (() => {
   const root = window.BCParkTool = window.BCParkTool || {};
-  const { HUD_CONSTANTS, STORAGE_KEYS } = root.constants;
+  const { HUD_CONSTANTS } = root.constants;
   const { createElement, clamp } = root.dom;
   const { readClockState, writeClockState } = root.storage;
+
+  function miniIconMarkup(kind) {
+    if (kind === "primed") {
+      return `
+        <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <path d="M10 1.75a8.25 8.25 0 1 0 8.25 8.25A8.26 8.26 0 0 0 10 1.75Zm3.36 6.06-3.98 5.17a1 1 0 0 1-1.49.11L6.65 10.5a1 1 0 1 1 1.41-1.42l.98.98 3.32-4.31a1 1 0 1 1 1.6 1.26Z" fill="currentColor"/>
+        </svg>
+      `;
+    }
+
+    if (kind === "armed") {
+      return `
+        <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <path d="M10 1.75a8.25 8.25 0 1 0 8.25 8.25A8.26 8.26 0 0 0 10 1.75Zm1 8.1 2.5 1.45a1 1 0 1 1-1 1.73L9.5 11.24A1.5 1.5 0 0 1 8.75 10V5.9a1 1 0 0 1 2 0V10c0 .04.02.08.05.1Z" fill="currentColor"/>
+        </svg>
+      `;
+    }
+
+    return "";
+  }
 
   function createClockHud({
     clockService,
@@ -49,7 +69,10 @@
       attrs: { type: "button" },
       textContent: "Cancel scheduled click"
     });
-    const miniIcon = createElement("div", { className: "mini-icon" });
+    const miniIcon = createElement("div", {
+      className: "mini-icon",
+      attrs: { "aria-hidden": "true" }
+    });
     const miniValue = createElement("div", { className: "mini-value" });
     const miniState = createElement("div", { className: "mini-state" });
     const miniTime = createElement("div", { className: "mini-time" });
@@ -139,7 +162,6 @@
 
       if (scheduleState.status === "primed") {
         return {
-          miniIconText: "✓",
           miniIconKind: "primed",
           miniValueText: compactNow,
           miniTimeText: "",
@@ -152,7 +174,6 @@
       if (scheduleState.status === "armed" && scheduleState.nextClickMs != null) {
         const nextClick = clockService.formatClockTime(scheduleState.nextClickMs);
         return {
-          miniIconText: "◷",
           miniIconKind: "armed",
           miniValueText: compactNow,
           miniTimeText: "",
@@ -164,7 +185,6 @@
 
       if (scheduleState.status === "clicked") {
         return {
-          miniIconText: "",
           miniIconKind: "",
           miniValueText: compactNow,
           miniTimeText: "",
@@ -176,7 +196,6 @@
 
       if (scheduleState.status === "error") {
         return {
-          miniIconText: "",
           miniIconKind: "",
           miniValueText: compactNow,
           miniTimeText: "",
@@ -188,7 +207,6 @@
 
       if (scheduleState.status === "cancelled") {
         return {
-          miniIconText: "",
           miniIconKind: "",
           miniValueText: compactNow,
           miniTimeText: "",
@@ -199,7 +217,6 @@
       }
 
       return {
-        miniIconText: "",
         miniIconKind: "",
         miniValueText: compactNow,
         miniTimeText: "",
@@ -221,9 +238,9 @@
       const nowMs = clockSnapshot.nowMs || Date.now();
       const view = formatScheduleView(nowMs);
 
-      miniIcon.hidden = !view.miniIconText;
+      miniIcon.hidden = !view.miniIconKind;
       miniIcon.className = `mini-icon${view.miniIconKind ? ` is-${view.miniIconKind}` : ""}`;
-      miniIcon.textContent = view.miniIconText || "";
+      miniIcon.innerHTML = miniIconMarkup(view.miniIconKind);
       miniTime.hidden = true;
       miniState.hidden = true;
       miniValue.textContent = view.miniValueText;

@@ -118,6 +118,26 @@
     };
   }
 
+  function normalizeTurnstileRun(input = {}) {
+    const ms = Number(input.ms);
+    const ts = Number(input.ts);
+    if (!Number.isFinite(ms) || ms < 0) {
+      return null;
+    }
+    return {
+      id: String(input.id || `${Date.now()}-${Math.random().toString(36).slice(2)}`),
+      ms: Math.round(ms),
+      ts: Number.isFinite(ts) ? Math.round(ts) : Date.now()
+    };
+  }
+
+  function normalizeTurnstileRuns(input = []) {
+    if (!Array.isArray(input)) {
+      return [];
+    }
+    return input.map(normalizeTurnstileRun).filter(Boolean).slice(-100);
+  }
+
   function normalizeClockState(input = {}) {
     const x = typeof input.x === "number" && Number.isFinite(input.x) ? input.x : null;
     const y = typeof input.y === "number" && Number.isFinite(input.y) ? input.y : null;
@@ -161,6 +181,24 @@
     return writeJson(STORAGE_KEYS.scheduleConfig, normalizeScheduleConfig(config));
   }
 
+  function readTurnstileRuns() {
+    return normalizeTurnstileRuns(readJson(STORAGE_KEYS.turnstileRuns, []));
+  }
+
+  function writeTurnstileRuns(runs) {
+    return writeJson(STORAGE_KEYS.turnstileRuns, normalizeTurnstileRuns(runs));
+  }
+
+  function appendTurnstileRun(run) {
+    const runs = readTurnstileRuns();
+    runs.push(normalizeTurnstileRun(run));
+    return writeTurnstileRuns(runs);
+  }
+
+  function clearTurnstileRuns() {
+    return writeTurnstileRuns([]);
+  }
+
   function resetScheduleConfig() {
     return writeScheduleConfig(DEFAULT_SCHEDULE_CONFIG);
   }
@@ -175,6 +213,12 @@
     resetScheduleConfig,
     normalizeBookingConfig,
     normalizeScheduleConfig,
-    normalizeClockState
+    normalizeClockState,
+    readTurnstileRuns,
+    writeTurnstileRuns,
+    appendTurnstileRun,
+    clearTurnstileRuns,
+    normalizeTurnstileRun,
+    normalizeTurnstileRuns
   });
 })();
