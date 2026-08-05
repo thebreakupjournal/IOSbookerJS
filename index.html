@@ -9,15 +9,15 @@
     <title>BC Parks UI Preview</title>
     <style>
       :root {
-        color-scheme: dark;
-        --bg: #07101a;
-        --panel: rgba(11, 18, 28, 0.92);
-        --panel-border: rgba(255, 255, 255, 0.08);
-        --text: #eef3f8;
-        --muted: #97a6b6;
-        --accent: #14b8a6;
-        --accent-strong: #2dd4bf;
-        --warning: #f5b84b;
+        color-scheme: light;
+        --bg: #f5f7fb;
+        --panel: rgba(255, 255, 255, 0.92);
+        --panel-border: #dbe3ec;
+        --text: #0f172a;
+        --muted: #64748b;
+        --accent: #2563eb;
+        --accent-strong: #1d4ed8;
+        --warning: #475569;
       }
 
       html,
@@ -25,9 +25,9 @@
         margin: 0;
         min-height: 100%;
         background:
-          radial-gradient(circle at top left, rgba(20, 184, 166, 0.14), transparent 30%),
-          radial-gradient(circle at top right, rgba(44, 112, 255, 0.16), transparent 24%),
-          linear-gradient(180deg, #060d16 0%, #09131f 60%, #060d14 100%);
+          radial-gradient(circle at top left, rgba(37, 99, 235, 0.08), transparent 28%),
+          radial-gradient(circle at top right, rgba(15, 23, 42, 0.04), transparent 24%),
+          linear-gradient(180deg, #fbfcfe 0%, #f5f7fb 55%, #eef2f7 100%);
         color: var(--text);
         font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", sans-serif;
       }
@@ -44,8 +44,8 @@
         padding: 28px;
         border: 1px solid var(--panel-border);
         border-radius: 28px;
-        background: linear-gradient(180deg, rgba(10, 20, 32, 0.9), rgba(8, 15, 25, 0.96));
-        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+        background: #ffffff;
+        box-shadow: 0 24px 80px rgba(15, 23, 42, 0.08);
       }
 
       h1 {
@@ -81,9 +81,9 @@
         width: fit-content;
         padding: 8px 12px;
         border-radius: 999px;
-        background: rgba(20, 184, 166, 0.12);
-        color: #c7f9f1;
-        border: 1px solid rgba(20, 184, 166, 0.24);
+        background: rgba(37, 99, 235, 0.08);
+        color: var(--accent);
+        border: 1px solid rgba(37, 99, 235, 0.18);
         font-size: 0.875rem;
       }
 
@@ -97,8 +97,8 @@
       .card {
         padding: 20px;
         border-radius: 22px;
-        background: rgba(10, 18, 29, 0.75);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: #f8fafc;
+        border: 1px solid var(--panel-border);
       }
 
       .preview-note {
@@ -106,8 +106,8 @@
         gap: 8px;
         padding: 18px 20px;
         border-radius: 18px;
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: #f8fafc;
+        border: 1px solid var(--panel-border);
       }
 
       .preview-note strong {
@@ -115,7 +115,7 @@
       }
 
       a {
-        color: #a6f7d4;
+        color: var(--accent);
       }
 
       ul {

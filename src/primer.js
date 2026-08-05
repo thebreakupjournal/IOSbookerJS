@@ -253,7 +253,7 @@
       textContent: "Prime only"
     });
     const primeArmButton = createElement("button", {
-      className: "bc-park-tool-button",
+      className: "bc-park-tool-button primary",
       attrs: { type: "button" },
       textContent: "Prime and arm"
     });

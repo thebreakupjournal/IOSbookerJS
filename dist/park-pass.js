@@ -804,21 +804,21 @@
     style.id = "bc-park-tool-styles";
     style.textContent = `
       :root {
-        --bcpark-font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", sans-serif;
-        --bcpark-bg: rgba(9, 14, 22, 0.92);
-        --bcpark-bg-strong: rgba(7, 12, 18, 0.98);
-        --bcpark-surface: rgba(255, 255, 255, 0.04);
-        --bcpark-surface-strong: rgba(255, 255, 255, 0.07);
-        --bcpark-border: rgba(255, 255, 255, 0.08);
-        --bcpark-border-strong: rgba(255, 255, 255, 0.14);
-        --bcpark-text: #f4f7fb;
-        --bcpark-muted: #a6b0bc;
-        --bcpark-accent: #14b8a6;
-        --bcpark-accent-soft: rgba(20, 184, 166, 0.16);
-        --bcpark-accent-strong: #2dd4bf;
-        --bcpark-error: #ef7676;
-        --bcpark-warning: #f5b84b;
-        --bcpark-shadow: 0 28px 80px rgba(2, 8, 23, 0.42);
+        --bcpark-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+        --bcpark-bg: #ffffff;
+        --bcpark-bg-strong: #f8fafc;
+        --bcpark-surface: #ffffff;
+        --bcpark-surface-strong: #f8fafc;
+        --bcpark-border: #dbe3ec;
+        --bcpark-border-strong: #c7d2de;
+        --bcpark-text: #0f172a;
+        --bcpark-muted: #64748b;
+        --bcpark-accent: #2563eb;
+        --bcpark-accent-soft: rgba(37, 99, 235, 0.12);
+        --bcpark-accent-strong: #1d4ed8;
+        --bcpark-error: #dc2626;
+        --bcpark-warning: #475569;
+        --bcpark-shadow: 0 18px 50px rgba(15, 23, 42, 0.12);
       }
 
       #bc-park-tool-root,
@@ -848,31 +848,31 @@
         width: 340px;
         border-radius: 24px;
         border: 1px solid var(--bcpark-border);
-        background: linear-gradient(180deg, rgba(13, 19, 30, 0.96), rgba(7, 11, 17, 0.98));
+        background: #ffffff;
         box-shadow: var(--bcpark-shadow);
         overflow: hidden;
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
         transition: width 180ms ease, height 180ms ease, border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
       }
 
       #bc-park-tool-root .bc-park-tool-hud.is-minimized {
-        width: 98px;
-        height: 98px;
+        width: 132px;
+        height: 56px;
         border-radius: 999px;
         display: grid;
         place-items: center;
-        padding: 10px;
+        padding: 0 14px;
       }
 
       #bc-park-tool-root .bc-park-tool-hud.is-armed {
-        border-color: rgba(20, 184, 166, 0.6);
-        box-shadow: 0 0 0 1px rgba(20, 184, 166, 0.1), var(--bcpark-shadow);
+        border-color: rgba(37, 99, 235, 0.35);
+        box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.08), var(--bcpark-shadow);
       }
 
       #bc-park-tool-root .bc-park-tool-hud.is-error {
-        border-color: rgba(239, 118, 118, 0.68);
-        box-shadow: 0 0 0 1px rgba(239, 118, 118, 0.1), var(--bcpark-shadow);
+        border-color: rgba(220, 38, 38, 0.42);
+        box-shadow: 0 0 0 1px rgba(220, 38, 38, 0.08), var(--bcpark-shadow);
       }
 
       #bc-park-tool-root .bc-park-tool-hud .bc-park-tool-header {
@@ -881,7 +881,7 @@
         justify-content: space-between;
         gap: 12px;
         padding: 14px 16px 12px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        border-bottom: 1px solid var(--bcpark-border);
       }
 
       #bc-park-tool-root .bc-park-tool-hud .bc-park-tool-title {
@@ -927,9 +927,9 @@
       }
 
       #bc-park-tool-root .bc-park-tool-content {
-        padding: 16px;
+        padding: 14px;
         display: grid;
-        gap: 14px;
+        gap: 12px;
       }
 
       #bc-park-tool-root .bc-park-tool-clock {
@@ -937,14 +937,13 @@
         gap: 6px;
         padding: 14px 14px 12px;
         border-radius: 18px;
-        background: var(--bcpark-surface);
-        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: #f8fafc;
+        border: 1px solid var(--bcpark-border);
       }
 
       #bc-park-tool-root .bc-park-tool-clock .clock-label {
         font-size: 0.76rem;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
+        letter-spacing: 0;
         color: var(--bcpark-muted);
       }
 
@@ -966,14 +965,13 @@
         gap: 4px;
         padding: 12px 14px;
         border-radius: 18px;
-        background: var(--bcpark-surface);
-        border: 1px solid rgba(255, 255, 255, 0.05);
+        background: #f8fafc;
+        border: 1px solid var(--bcpark-border);
       }
 
       #bc-park-tool-root .bc-park-tool-status .status-label {
         font-size: 0.74rem;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
+        letter-spacing: 0;
         color: var(--bcpark-muted);
       }
 
@@ -989,35 +987,42 @@
       }
 
       #bc-park-tool-root .bc-park-tool-hud.is-armed .status-main {
-        color: #c3f6ea;
+        color: #0f172a;
       }
 
       #bc-park-tool-root .bc-park-tool-hud.is-error .status-main {
-        color: #ffd0d0;
+        color: #0f172a;
       }
 
       #bc-park-tool-root .bc-park-tool-button {
         appearance: none;
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        border: 1px solid var(--bcpark-border);
         border-radius: 14px;
         padding: 11px 14px;
         font: inherit;
         font-size: 0.9rem;
         font-weight: 650;
-        color: #061018;
-        background: linear-gradient(180deg, #67dccf, #14b8a6);
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+        color: #0f172a;
+        background: #ffffff;
+        box-shadow: 0 1px 0 rgba(15, 23, 42, 0.03);
+      }
+
+      #bc-park-tool-root .bc-park-tool-button.primary {
+        color: #ffffff;
+        background: var(--bcpark-accent);
+        border-color: var(--bcpark-accent);
+        box-shadow: 0 8px 18px rgba(37, 99, 235, 0.16);
       }
 
       #bc-park-tool-root .bc-park-tool-button.secondary {
         color: var(--bcpark-text);
-        background: rgba(255, 255, 255, 0.035);
+        background: #ffffff;
         box-shadow: none;
       }
 
       #bc-park-tool-root .bc-park-tool-button.danger {
-        color: #fff;
-        background: linear-gradient(180deg, #f08b8b, #ef7676);
+        color: var(--bcpark-error);
+        background: #ffffff;
       }
 
       #bc-park-tool-root .bc-park-tool-button:disabled {
@@ -1029,38 +1034,35 @@
         height: 100%;
         display: grid;
         place-items: center;
-        padding: 12px;
+        padding: 0;
         text-align: center;
         cursor: pointer;
         touch-action: none;
       }
 
       #bc-park-tool-root .bc-park-tool-mini .mini-state {
-        font-size: 0.75rem;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: var(--bcpark-accent-strong);
+        display: none;
       }
 
       #bc-park-tool-root .bc-park-tool-mini .mini-value {
-        font-size: 1rem;
+        font-size: 0.85rem;
         font-weight: 700;
-        margin-top: 2px;
         letter-spacing: -0.03em;
         font-variant-numeric: tabular-nums;
+        line-height: 1.1;
+        color: #0f172a;
       }
 
       #bc-park-tool-root .bc-park-tool-mini .mini-time {
-        font-size: 0.77rem;
-        color: var(--bcpark-muted);
+        display: none;
       }
 
       #bc-park-tool-root .bc-park-tool-modal-backdrop {
         position: fixed;
         inset: 0;
-        background: rgba(2, 6, 10, 0.56);
-        backdrop-filter: blur(6px);
-        -webkit-backdrop-filter: blur(6px);
+        background: rgba(248, 250, 252, 0.75);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
         display: grid;
         place-items: center;
         pointer-events: auto;
@@ -1073,8 +1075,8 @@
         overflow: auto;
         border-radius: 28px;
         border: 1px solid var(--bcpark-border-strong);
-        background: linear-gradient(180deg, rgba(14, 20, 31, 0.98), rgba(8, 12, 18, 0.99));
-        box-shadow: 0 36px 120px rgba(0, 0, 0, 0.48);
+        background: #ffffff;
+        box-shadow: 0 28px 90px rgba(15, 23, 42, 0.14);
       }
 
       #bc-park-tool-root .bc-park-tool-modal-header {
@@ -1135,9 +1137,9 @@
       #bc-park-tool-root .bc-park-tool-field select {
         width: 100%;
         border-radius: 16px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        border: 1px solid var(--bcpark-border);
         padding: 12px 14px;
-        background: rgba(255, 255, 255, 0.04);
+        background: #ffffff;
         color: var(--bcpark-text);
         font: inherit;
         outline: none;
@@ -1146,8 +1148,8 @@
 
       #bc-park-tool-root .bc-park-tool-field input:focus,
       #bc-park-tool-root .bc-park-tool-field select:focus {
-        border-color: rgba(20, 184, 166, 0.65);
-        box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.14);
+        border-color: rgba(37, 99, 235, 0.65);
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
       }
 
       #bc-park-tool-root .bc-park-tool-field input[type="time"] {
@@ -1165,14 +1167,13 @@
         gap: 6px;
         padding: 14px 16px;
         border-radius: 18px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        background: linear-gradient(180deg, rgba(20, 184, 166, 0.08), rgba(255, 255, 255, 0.03));
+        border: 1px solid var(--bcpark-border);
+        background: #f8fafc;
       }
 
       #bc-park-tool-root .bc-park-tool-preview .preview-label {
         font-size: 0.72rem;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
+        letter-spacing: 0;
         color: var(--bcpark-muted);
       }
 
@@ -1183,7 +1184,7 @@
       }
 
       #bc-park-tool-root .bc-park-tool-preview .preview-error {
-        color: #ffd0d0;
+        color: var(--bcpark-error);
       }
 
       #bc-park-tool-root .bc-park-tool-note {
@@ -1208,8 +1209,8 @@
         gap: 12px;
         padding: 16px;
         border-radius: 20px;
-        background: var(--bcpark-surface);
-        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: #ffffff;
+        border: 1px solid var(--bcpark-border);
       }
 
       #bc-park-tool-root .bc-park-tool-section-head {
@@ -1245,9 +1246,9 @@
         display: none;
         padding: 12px 14px;
         border-radius: 16px;
-        color: #ffd0d0;
-        background: rgba(255, 109, 109, 0.12);
-        border: 1px solid rgba(255, 109, 109, 0.28);
+        color: var(--bcpark-error);
+        background: rgba(220, 38, 38, 0.06);
+        border: 1px solid rgba(220, 38, 38, 0.2);
         line-height: 1.45;
       }
 
@@ -1287,7 +1288,7 @@
     const expandedLayer = createElement("div", { className: "bc-park-tool-expanded" });
     const header = createElement("div", { className: "bc-park-tool-header" });
     const dragHandle = createElement("div", { className: "bc-park-tool-title bc-park-tool-drag-handle" });
-    const titleText = createElement("strong", { textContent: "BC Parks" });
+    const titleText = createElement("strong", { textContent: "Reservation clock" });
     const subtitleText = createElement("div", { className: "bc-park-tool-subtitle" });
     const actions = createElement("div", { className: "bc-park-tool-actions" });
     const configureButton = createElement("button", {
@@ -1340,8 +1341,8 @@
     let dragTapExpands = false;
 
     function defaultPosition() {
-      const width = state.minimized ? 104 : 352;
-      const height = state.minimized ? 104 : 260;
+      const width = state.minimized ? 136 : 352;
+      const height = state.minimized ? 56 : 260;
       return {
         x: Math.max(16, window.innerWidth - width - 18),
         y: 16
@@ -1350,8 +1351,8 @@
 
     function clampPosition(nextX, nextY) {
       const rect = hud.getBoundingClientRect();
-      const width = rect.width || (state.minimized ? 104 : 352);
-      const height = rect.height || (state.minimized ? 104 : 260);
+      const width = rect.width || (state.minimized ? 136 : 352);
+      const height = rect.height || (state.minimized ? 56 : 260);
       const maxX = Math.max(16, window.innerWidth - width - 12);
       const maxY = Math.max(16, window.innerHeight - height - 12);
       return {
@@ -1399,23 +1400,22 @@
 
     function formatScheduleView(nowMs) {
       if (scheduleState.status === "armed" && scheduleState.nextClickMs != null) {
-        const remainingMs = scheduleState.nextClickMs - nowMs;
         const nextClick = clockService.formatClockTime(scheduleState.nextClickMs);
         return {
-          miniStateText: "Armed",
-          miniValueText: `${Math.max(0, remainingMs / 1000).toFixed(1)}s`,
-          miniTimeText: `Next ${nextClick}`,
+          miniStateText: "",
+          miniValueText: clockService.formatClockTime(nowMs).replace(/\.\d{3}(?=\s)/, ""),
+          miniTimeText: "",
           statusLabelText: "Armed",
           statusMainText: `Next click: ${nextClick}`,
-          statusDetailText: `T- ${root.dom.formatCountdownSeconds(remainingMs)}`
+          statusDetailText: `T- ${root.dom.formatCountdownSeconds(scheduleState.nextClickMs - nowMs)}`
         };
       }
 
       if (scheduleState.status === "clicked") {
         return {
-          miniStateText: "Clicked",
-          miniValueText: scheduleState.schedulerErrorMs != null ? root.dom.formatSignedMs(scheduleState.schedulerErrorMs) : "Done",
-          miniTimeText: "Tap to review",
+          miniStateText: "",
+          miniValueText: clockService.formatClockTime(nowMs).replace(/\.\d{3}(?=\s)/, ""),
+          miniTimeText: "",
           statusLabelText: "Clicked",
           statusMainText: "Next click completed",
           statusDetailText: scheduleState.schedulerErrorMs != null ? `Scheduler error: ${root.dom.formatSignedMs(scheduleState.schedulerErrorMs)}` : "Page 1 Next was clicked."
@@ -1424,9 +1424,9 @@
 
       if (scheduleState.status === "error") {
         return {
-          miniStateText: "Schedule error",
-          miniValueText: "Fix needed",
-          miniTimeText: "Tap to retry",
+          miniStateText: "",
+          miniValueText: clockService.formatClockTime(nowMs).replace(/\.\d{3}(?=\s)/, ""),
+          miniTimeText: "",
           statusLabelText: "Error",
           statusMainText: "Schedule error",
           statusDetailText: scheduleState.message || "An unknown scheduling error occurred."
@@ -1435,9 +1435,9 @@
 
       if (scheduleState.status === "cancelled") {
         return {
-          miniStateText: "Cancelled",
-          miniValueText: "Cleared",
-          miniTimeText: "Tap to re-arm",
+          miniStateText: "",
+          miniValueText: clockService.formatClockTime(nowMs).replace(/\.\d{3}(?=\s)/, ""),
+          miniTimeText: "",
           statusLabelText: "Cancelled",
           statusMainText: "Schedule cleared",
           statusDetailText: scheduleState.detail || "Outstanding timers and animation frames were cleared."
@@ -1445,9 +1445,9 @@
       }
 
       return {
-        miniStateText: "BC Parks",
-        miniValueText: clockService.formatClockTime(nowMs),
-        miniTimeText: clockService.formatClockDate(nowMs),
+        miniStateText: "",
+        miniValueText: clockService.formatClockTime(nowMs).replace(/\.\d{3}(?=\s)/, ""),
+        miniTimeText: "",
         statusLabelText: "Ready",
         statusMainText: "Set the release time, then prime Page 1 when you're ready.",
         statusDetailText: `Source: ${clockService.formatSourceLine(clockSnapshot)}`
@@ -1465,11 +1465,13 @@
       const nowMs = clockSnapshot.nowMs || Date.now();
       const view = formatScheduleView(nowMs);
 
+      miniState.hidden = true;
+      miniTime.hidden = true;
       miniState.textContent = view.miniStateText;
       miniValue.textContent = view.miniValueText;
       miniTime.textContent = view.miniTimeText;
 
-      titleText.textContent = "BC Parks";
+      titleText.textContent = "Reservation clock";
       subtitleText.textContent = clockService.formatSourceLine(clockSnapshot);
 
       clockLabel.textContent = "Current time";
@@ -2144,7 +2146,7 @@
       textContent: "Prime only"
     });
     const primeArmButton = createElement("button", {
-      className: "bc-park-tool-button",
+      className: "bc-park-tool-button primary",
       attrs: { type: "button" },
       textContent: "Prime and arm"
     });

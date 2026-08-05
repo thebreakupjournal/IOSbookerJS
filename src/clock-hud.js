@@ -22,7 +22,7 @@
     const expandedLayer = createElement("div", { className: "bc-park-tool-expanded" });
     const header = createElement("div", { className: "bc-park-tool-header" });
     const dragHandle = createElement("div", { className: "bc-park-tool-title bc-park-tool-drag-handle" });
-    const titleText = createElement("strong", { textContent: "BC Parks" });
+    const titleText = createElement("strong", { textContent: "Reservation clock" });
     const subtitleText = createElement("div", { className: "bc-park-tool-subtitle" });
     const actions = createElement("div", { className: "bc-park-tool-actions" });
     const configureButton = createElement("button", {
@@ -75,8 +75,8 @@
     let dragTapExpands = false;
 
     function defaultPosition() {
-      const width = state.minimized ? 104 : 352;
-      const height = state.minimized ? 104 : 260;
+      const width = state.minimized ? 136 : 352;
+      const height = state.minimized ? 56 : 260;
       return {
         x: Math.max(16, window.innerWidth - width - 18),
         y: 16
@@ -85,8 +85,8 @@
 
     function clampPosition(nextX, nextY) {
       const rect = hud.getBoundingClientRect();
-      const width = rect.width || (state.minimized ? 104 : 352);
-      const height = rect.height || (state.minimized ? 104 : 260);
+      const width = rect.width || (state.minimized ? 136 : 352);
+      const height = rect.height || (state.minimized ? 56 : 260);
       const maxX = Math.max(16, window.innerWidth - width - 12);
       const maxY = Math.max(16, window.innerHeight - height - 12);
       return {
@@ -134,23 +134,22 @@
 
     function formatScheduleView(nowMs) {
       if (scheduleState.status === "armed" && scheduleState.nextClickMs != null) {
-        const remainingMs = scheduleState.nextClickMs - nowMs;
         const nextClick = clockService.formatClockTime(scheduleState.nextClickMs);
         return {
-          miniStateText: "Armed",
-          miniValueText: `${Math.max(0, remainingMs / 1000).toFixed(1)}s`,
-          miniTimeText: `Next ${nextClick}`,
+          miniStateText: "",
+          miniValueText: clockService.formatClockTime(nowMs).replace(/\.\d{3}(?=\s)/, ""),
+          miniTimeText: "",
           statusLabelText: "Armed",
           statusMainText: `Next click: ${nextClick}`,
-          statusDetailText: `T- ${root.dom.formatCountdownSeconds(remainingMs)}`
+          statusDetailText: `T- ${root.dom.formatCountdownSeconds(scheduleState.nextClickMs - nowMs)}`
         };
       }
 
       if (scheduleState.status === "clicked") {
         return {
-          miniStateText: "Clicked",
-          miniValueText: scheduleState.schedulerErrorMs != null ? root.dom.formatSignedMs(scheduleState.schedulerErrorMs) : "Done",
-          miniTimeText: "Tap to review",
+          miniStateText: "",
+          miniValueText: clockService.formatClockTime(nowMs).replace(/\.\d{3}(?=\s)/, ""),
+          miniTimeText: "",
           statusLabelText: "Clicked",
           statusMainText: "Next click completed",
           statusDetailText: scheduleState.schedulerErrorMs != null ? `Scheduler error: ${root.dom.formatSignedMs(scheduleState.schedulerErrorMs)}` : "Page 1 Next was clicked."
@@ -159,9 +158,9 @@
 
       if (scheduleState.status === "error") {
         return {
-          miniStateText: "Schedule error",
-          miniValueText: "Fix needed",
-          miniTimeText: "Tap to retry",
+          miniStateText: "",
+          miniValueText: clockService.formatClockTime(nowMs).replace(/\.\d{3}(?=\s)/, ""),
+          miniTimeText: "",
           statusLabelText: "Error",
           statusMainText: "Schedule error",
           statusDetailText: scheduleState.message || "An unknown scheduling error occurred."
@@ -170,9 +169,9 @@
 
       if (scheduleState.status === "cancelled") {
         return {
-          miniStateText: "Cancelled",
-          miniValueText: "Cleared",
-          miniTimeText: "Tap to re-arm",
+          miniStateText: "",
+          miniValueText: clockService.formatClockTime(nowMs).replace(/\.\d{3}(?=\s)/, ""),
+          miniTimeText: "",
           statusLabelText: "Cancelled",
           statusMainText: "Schedule cleared",
           statusDetailText: scheduleState.detail || "Outstanding timers and animation frames were cleared."
@@ -180,9 +179,9 @@
       }
 
       return {
-        miniStateText: "BC Parks",
-        miniValueText: clockService.formatClockTime(nowMs),
-        miniTimeText: clockService.formatClockDate(nowMs),
+        miniStateText: "",
+        miniValueText: clockService.formatClockTime(nowMs).replace(/\.\d{3}(?=\s)/, ""),
+        miniTimeText: "",
         statusLabelText: "Ready",
         statusMainText: "Set the release time, then prime Page 1 when you're ready.",
         statusDetailText: `Source: ${clockService.formatSourceLine(clockSnapshot)}`
@@ -200,11 +199,13 @@
       const nowMs = clockSnapshot.nowMs || Date.now();
       const view = formatScheduleView(nowMs);
 
+      miniState.hidden = true;
+      miniTime.hidden = true;
       miniState.textContent = view.miniStateText;
       miniValue.textContent = view.miniValueText;
       miniTime.textContent = view.miniTimeText;
 
-      titleText.textContent = "BC Parks";
+      titleText.textContent = "Reservation clock";
       subtitleText.textContent = clockService.formatSourceLine(clockSnapshot);
 
       clockLabel.textContent = "Current time";
