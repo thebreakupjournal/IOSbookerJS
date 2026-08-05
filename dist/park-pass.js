@@ -540,9 +540,9 @@
     }
     if (snapshot.sourceKind === "http") {
       const rtt = snapshot.roundTripMs != null ? `${Math.round(snapshot.roundTripMs)} ms` : "n/a";
-      return `BC Parks HTTP time Â· RTT ${rtt} Â· offset ${formatOffset(snapshot.offsetMs)}`;
+      return `BC Parks HTTP time · RTT ${rtt} · offset ${formatOffset(snapshot.offsetMs)}`;
     }
-    return "Local fallback Â· using device clock";
+    return "Local fallback · using device clock";
   }
 
   function formatTimeZoneLabel(snapshot) {
@@ -1442,7 +1442,7 @@
 
       if (scheduleState.status === "primed") {
         return {
-          miniIconText: "âœ“",
+          miniIconText: "✓",
           miniIconKind: "primed",
           miniValueText: compactNow,
           miniTimeText: "",
@@ -1455,7 +1455,7 @@
       if (scheduleState.status === "armed" && scheduleState.nextClickMs != null) {
         const nextClick = clockService.formatClockTime(scheduleState.nextClickMs);
         return {
-          miniIconText: "â—·",
+          miniIconText: "◷",
           miniIconKind: "armed",
           miniValueText: compactNow,
           miniTimeText: "",
@@ -2666,7 +2666,7 @@
           message: "Primed",
           detail: "Page 1 is filled and ready."
         });
-        primeOnlyButton.textContent = "âœ“ Primed";
+        primeOnlyButton.textContent = "✓ Primed";
         primeOnlyButton.classList.add("is-success");
         hud.minimize();
         await wait(450);
@@ -2693,7 +2693,7 @@
             schedule: state.schedule
           });
         }
-        primeArmButton.textContent = "âœ“ Armed";
+        primeArmButton.textContent = "✓ Armed";
         primeArmButton.classList.add("is-success");
         hud.minimize();
         await wait(450);
