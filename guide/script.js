@@ -3,8 +3,47 @@
 
   const code = document.getElementById("bookmarklet-code");
   const copyButton = document.getElementById("copy-code");
-  const copyStatus = document.getElementById("copy-status");
   const copyBookmarkletButton = document.getElementById("copy-bookmarklet");
+  const copyStatus = document.getElementById("copy-status");
+  const progressFill = document.getElementById("progress-fill");
+  const progressTitle = document.getElementById("progress-title");
+  const progressMeta = document.getElementById("progress-meta");
+  const stepStrip = document.getElementById("step-strip");
+  const stepButtons = Array.from(document.querySelectorAll(".step-chip"));
+  const stepSections = Array.from(document.querySelectorAll("[data-step-index]"));
+
+  const steps = [
+    {
+      key: "bookmark",
+      title: "Step 1 of 5",
+      meta: "Bookmark the guide page.",
+      progress: 20
+    },
+    {
+      key: "loader",
+      title: "Step 2 of 5",
+      meta: "Copy the bookmarklet loader.",
+      progress: 40
+    },
+    {
+      key: "open",
+      title: "Step 3 of 5",
+      meta: "Open the BC Parks reservation page.",
+      progress: 60
+    },
+    {
+      key: "prime",
+      title: "Step 4 of 5",
+      meta: "Set release time and prime the booking.",
+      progress: 80
+    },
+    {
+      key: "test",
+      title: "Step 5 of 5",
+      meta: "Run tests and review timing results.",
+      progress: 100
+    }
+  ];
 
   function setStatus(message) {
     copyStatus.textContent = message;
@@ -42,7 +81,77 @@
     }
   }
 
+  function setActiveStep(index) {
+    const clamped = Math.max(0, Math.min(steps.length - 1, index));
+    const step = steps[clamped];
+
+    progressFill.style.width = `${step.progress}%`;
+    progressTitle.textContent = step.title;
+    progressMeta.textContent = step.meta;
+
+    stepButtons.forEach((button, i) => {
+      const active = i === clamped;
+      button.classList.toggle("is-active", active);
+      if (active) {
+        button.setAttribute("aria-current", "step");
+      } else {
+        button.removeAttribute("aria-current");
+      }
+    });
+  }
+
+  function scrollToStep(key) {
+    const target = document.getElementById(key);
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    const visible = entries
+      .filter((entry) => entry.isIntersecting)
+      .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+
+    if (!visible) {
+      return;
+    }
+
+    const index = Number(visible.target.dataset.stepIndex);
+    if (Number.isFinite(index)) {
+      setActiveStep(index);
+    }
+  }, {
+    rootMargin: "-20% 0px -55% 0px",
+    threshold: [0.12, 0.24, 0.4, 0.6, 0.8]
+  });
+
   code.value = bookmarklet;
   copyButton.addEventListener("click", handleCopy);
   copyBookmarkletButton.addEventListener("click", handleCopy);
+
+  stepButtons.forEach((button, index) => {
+    button.addEventListener("click", () => scrollToStep(steps[index].key));
+  });
+
+  stepSections.forEach((section) => observer.observe(section));
+
+  setActiveStep(0);
+
+  if (stepStrip) {
+    stepStrip.addEventListener("keydown", (event) => {
+      const currentIndex = stepButtons.findIndex((button) => button.classList.contains("is-active"));
+      if (event.key === "ArrowRight") {
+        event.preventDefault();
+        const next = Math.min(stepButtons.length - 1, currentIndex + 1);
+        stepButtons[next].focus();
+        scrollToStep(steps[next].key);
+      }
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        const prev = Math.max(0, currentIndex - 1);
+        stepButtons[prev].focus();
+        scrollToStep(steps[prev].key);
+      }
+    });
+  }
 })();

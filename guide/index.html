@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#f5f7fb" />
+    <meta name="theme-color" content="#f7f8fb" />
     <title>BC Parks Setup Guide</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <link rel="shortcut icon" href="./favicon.svg" />
@@ -11,76 +11,128 @@
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <div class="backdrop backdrop-left"></div>
-    <div class="backdrop backdrop-right"></div>
-    <main class="page">
+    <div class="bg-orb bg-orb-left"></div>
+    <div class="bg-orb bg-orb-right"></div>
+
+    <header class="site-header">
+      <div class="site-shell">
+        <div class="brand">
+          <img class="brand-icon" src="./favicon.svg" alt="" aria-hidden="true" />
+          <div>
+            <div class="eyebrow">BC Parks setup</div>
+            <div class="brand-title">Bookmark, copy, and run</div>
+          </div>
+        </div>
+        <div class="header-actions">
+          <a class="text-link" href="../index.html">Local preview</a>
+          <a class="text-link" href="../dist/park-pass.js">Bundle</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="site-shell">
       <section class="hero card">
         <div class="hero-copy">
-          <div class="eyebrow">
-            <span class="eyebrow-dot"></span>
-            Bookmark-ready setup
-          </div>
-          <h1>Save this page, copy the loader once, and run the full flow from BC Parks.</h1>
+          <p class="kicker">One page. One bookmark. One flow.</p>
+          <h1>Use this guide to save the page, copy the loader, and follow the booking steps.</h1>
           <p class="lede">
-            The bookmarklet now handles prime, test, and arm in one pass. This page gives you the
-            bookmark icon, the exact loader string, and the runbook for lead time and timing tests.
+            The bookmarklet now includes prime, test, and arm. This page is the front door:
+            bookmark it for the icon, copy the loader once, then follow the step-by-step runbook
+            on your phone.
           </p>
           <div class="hero-actions">
             <button class="button primary" id="copy-bookmarklet" type="button">Copy bookmarklet</button>
-            <a class="button secondary" href="../index.html">Open local preview</a>
+            <a class="button secondary" href="#steps">See the steps</a>
           </div>
-          <p class="microcopy">
-            On iPhone, bookmark this page normally in Safari so the favicon shows up in your list.
-            Then copy the loader below into the bookmark you keep for the BC Parks page.
+          <p class="fineprint">
+            Safari cannot reliably auto-create a bookmarklet bookmark from a web page. The practical
+            flow is to bookmark this guide page for the icon, then paste the loader into the bookmark
+            you keep for BC Parks.
           </p>
         </div>
+
         <div class="hero-panel">
-          <div class="hero-icon" aria-hidden="true">
-            <svg viewBox="0 0 128 128" role="img" focusable="false">
-              <defs>
-                <linearGradient id="guideGradient" x1="24" y1="20" x2="104" y2="112" gradientUnits="userSpaceOnUse">
-                  <stop offset="0" stop-color="#2563eb" />
-                  <stop offset="1" stop-color="#14b8a6" />
-                </linearGradient>
-              </defs>
-              <rect x="12" y="12" width="104" height="104" rx="28" fill="#fff" stroke="#dbe3ec" />
-              <circle cx="64" cy="60" r="24" fill="#f8fafc" stroke="url(#guideGradient)" stroke-width="8" />
-              <path d="M64 45v16l11 7" fill="none" stroke="#0f172a" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
-              <path d="M49 84h30" stroke="#14b8a6" stroke-width="8" stroke-linecap="round" />
-              <path d="M83 84h10" stroke="#2563eb" stroke-width="8" stroke-linecap="round" />
-            </svg>
+          <div class="hero-card">
+            <div class="hero-card-label">Status</div>
+            <div class="hero-card-value">Ready to bookmark</div>
+            <div class="hero-card-copy">
+              Clean icon, clean loader, clean runbook.
+            </div>
           </div>
-          <div class="hero-panel-copy">
-            <strong>One bookmark, one guide, one flow.</strong>
-            <p>
-              Use the guide page for setup. Use the bookmarklet on the BC Parks page for the real
-              booking workflow.
-            </p>
+          <div class="hero-card compact">
+            <div class="hero-card-label">Flow</div>
+            <div class="hero-card-list">
+              <span>Bookmark this page</span>
+              <span>Copy loader</span>
+              <span>Prime or test</span>
+              <span>Arm when ready</span>
+            </div>
           </div>
         </div>
       </section>
 
-      <section class="section-grid">
-        <article class="card">
-          <div class="card-kicker">Install</div>
-          <h2>Bookmark this guide page</h2>
-          <ol class="steps">
-            <li>Open this page in Safari.</li>
-            <li>Add it to bookmarks or favorites like any normal site.</li>
-            <li>The favicon in the browser list comes from <code>guide/favicon.svg</code>.</li>
-          </ol>
-          <p class="hint">
-            There is no reliable way for a normal webpage to create a Safari bookmark for you
-            automatically. The practical path is: bookmark this guide, then copy the loader once.
+      <section class="progress-card card" aria-label="Setup progress">
+        <div class="progress-top">
+          <div>
+            <div class="section-label">Setup progress</div>
+            <h2 id="progress-title">Step 1 of 5</h2>
+          </div>
+          <div class="progress-meta" id="progress-meta">Bookmark the guide page.</div>
+        </div>
+        <div class="progress-track" aria-hidden="true">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <nav class="step-strip" id="step-strip" aria-label="Guide steps">
+          <button class="step-chip is-active" type="button" data-step-target="bookmark">
+            <span>1</span> Bookmark
+          </button>
+          <button class="step-chip" type="button" data-step-target="loader">
+            <span>2</span> Copy loader
+          </button>
+          <button class="step-chip" type="button" data-step-target="open">
+            <span>3</span> Open BC Parks
+          </button>
+          <button class="step-chip" type="button" data-step-target="prime">
+            <span>4</span> Prime and schedule
+          </button>
+          <button class="step-chip" type="button" data-step-target="test">
+            <span>5</span> Run tests
+          </button>
+        </nav>
+      </section>
+
+      <section class="steps-grid" id="steps">
+        <article class="step card" id="bookmark" data-step-index="0">
+          <div class="step-head">
+            <div class="step-number">1</div>
+            <div>
+              <div class="section-label">Bookmark</div>
+              <h2>Save this guide page</h2>
+            </div>
+          </div>
+          <p>
+            Open this page in Safari and bookmark it normally. The icon comes from
+            <code>guide/favicon.svg</code>, so the bookmark looks like a real product page instead of
+            a plain text link.
           </p>
+          <ul class="checklist">
+            <li>Add the page to bookmarks or favorites.</li>
+            <li>Keep it on your iPhone so you can return to the setup steps.</li>
+            <li>Use the icon to recognize the guide quickly later.</li>
+          </ul>
         </article>
 
-        <article class="card">
-          <div class="card-kicker">Copy</div>
-          <h2>Bookmarklet loader</h2>
-          <p class="section-text">
-            Copy this exact loader into the bookmark you use on the BC Parks page. It fetches the
-            published bundle with cache-busting.
+        <article class="step card" id="loader" data-step-index="1">
+          <div class="step-head">
+            <div class="step-number">2</div>
+            <div>
+              <div class="section-label">Copy</div>
+              <h2>Copy the bookmarklet loader</h2>
+            </div>
+          </div>
+          <p>
+            Paste this loader into the bookmark you use on the BC Parks page. It fetches the hosted
+            bundle with cache-busting during development.
           </p>
           <div class="code-shell">
             <textarea id="bookmarklet-code" readonly spellcheck="false"></textarea>
@@ -90,76 +142,107 @@
             <span class="status" id="copy-status">Ready to copy.</span>
           </div>
         </article>
-      </section>
 
-      <section class="card">
-        <div class="card-kicker">Runbook</div>
-        <h2>How to use it</h2>
-        <div class="workflow">
-          <div class="workflow-step">
-            <div class="step-number">1</div>
-            <div>
-              <strong>Open BC Parks</strong>
-              <p>Navigate to the reservation page where the form and Next button live.</p>
-            </div>
-          </div>
-          <div class="workflow-step">
-            <div class="step-number">2</div>
-            <div>
-              <strong>Prime booking</strong>
-              <p>Open the modal, choose booking date, park, pass, and visit time, then click <code>Prime only</code> or <code>Prime / arm</code>.</p>
-            </div>
-          </div>
-          <div class="workflow-step">
+        <article class="step card" id="open" data-step-index="2">
+          <div class="step-head">
             <div class="step-number">3</div>
             <div>
-              <strong>Set the release time</strong>
-              <p>Use the Schedule tab to choose release time in <code>HH:MM:SS</code> and set lead seconds.</p>
+              <div class="section-label">Open BC Parks</div>
+              <h2>Start from the reservation page</h2>
             </div>
           </div>
-          <div class="workflow-step">
+          <p>
+            Go to the BC Parks reservation page, then run the bookmarklet. The UI will open with the
+            clock, booking controls, and the new timing tab.
+          </p>
+          <div class="callout">
+            Keep Safari visible and prevent the phone from locking while you work.
+          </div>
+        </article>
+
+        <article class="step card" id="prime" data-step-index="3">
+          <div class="step-head">
             <div class="step-number">4</div>
             <div>
-              <strong>Run timing tests</strong>
-              <p>Use <code>Test</code> to measure Next-click to <code>#firstName</code> hydration. Results appear in the Timings tab.</p>
+              <div class="section-label">Prime</div>
+              <h2>Set release time and prime the booking</h2>
             </div>
           </div>
-        </div>
+          <ol class="ordered">
+            <li>Open the Prime Booking modal.</li>
+            <li>Set the booking date, park, pass, and visit time.</li>
+            <li>Open the Schedule tab.</li>
+            <li>Set release time in <code>HH:MM:SS</code>.</li>
+            <li>Set lead seconds.</li>
+            <li>Choose <strong>Prime only</strong> or <strong>Prime / arm</strong>.</li>
+          </ol>
+          <div class="mini-grid">
+            <div class="mini-card">
+              <strong>Prime only</strong>
+              <p>Fill Page 1 and stop there.</p>
+            </div>
+            <div class="mini-card">
+              <strong>Prime / arm</strong>
+              <p>Fill Page 1 and schedule the Next click.</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="step card" id="test" data-step-index="4">
+          <div class="step-head">
+            <div class="step-number">5</div>
+            <div>
+              <div class="section-label">Test</div>
+              <h2>Run timing tests and review results</h2>
+            </div>
+          </div>
+          <p>
+            Use <strong>Test</strong> to measure the time between clicking Next and the first booking
+            field appearing. Results show up in the Timings tab.
+          </p>
+          <ul class="checklist">
+            <li>Test saves each run locally.</li>
+            <li>Timings shows average, median, fastest, and slowest.</li>
+            <li>Use Copy results if you want to share or compare runs.</li>
+          </ul>
+        </article>
       </section>
 
-      <section class="section-grid">
-        <article class="card">
-          <div class="card-kicker">Controls</div>
-          <h2>What each button does</h2>
-          <ul class="list">
-            <li><strong>Test</strong> - primes the page, clicks Next, and stores a timing sample.</li>
-            <li><strong>Prime only</strong> - fills Page 1 and minimizes the HUD.</li>
-            <li><strong>Prime / arm</strong> - fills Page 1, then schedules the Next click.</li>
+      <section class="summary-grid">
+        <article class="card summary-card">
+          <div class="section-label">Buttons</div>
+          <h2>What to press</h2>
+          <ul class="summary-list">
+            <li><strong>Test</strong> - primes and records a run.</li>
+            <li><strong>Prime only</strong> - fills Page 1.</li>
+            <li><strong>Prime / arm</strong> - fills Page 1 and schedules Next.</li>
           </ul>
         </article>
 
-        <article class="card">
-          <div class="card-kicker">Timing</div>
-          <h2>What the Timings tab shows</h2>
-          <ul class="list">
-            <li>Average, median, fastest, and slowest run time.</li>
-            <li>A chronological list of each test run.</li>
-            <li>Copy and clear actions for managing stored samples.</li>
+        <article class="card summary-card">
+          <div class="section-label">Timing tab</div>
+          <h2>What you’ll see</h2>
+          <ul class="summary-list">
+            <li>Average, median, fastest, slowest.</li>
+            <li>A run-by-run list.</li>
+            <li>Copy and clear actions.</li>
           </ul>
         </article>
       </section>
 
-      <section class="card footer-card">
+      <section class="footer card">
         <div>
-          <h2>Recommended workflow</h2>
-          <p class="section-text">
-            Bookmark this page, copy the loader once, then use the modal on the BC Parks site to
-            prime, test, and arm without switching tools.
+          <div class="section-label">Recommended flow</div>
+          <h2>Bookmark the guide, copy the loader once, and use the modal on BC Parks.</h2>
+          <p>
+            That keeps the setup page separate from the live booking workflow while still giving you
+            a polished icon and a clean one-page reference.
           </p>
         </div>
-        <a class="button secondary" href="../dist/park-pass.js">Open bundled script</a>
+        <a class="button secondary" href="../dist/park-pass.js">Open bundle</a>
       </section>
     </main>
+
     <script src="./script.js"></script>
   </body>
 </html>
