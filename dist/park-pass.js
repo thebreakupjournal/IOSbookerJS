@@ -1966,7 +1966,7 @@
     return true;
   }
 
-  async function waitForBookingPageControls(config, { requireNextButton = false } = {}) {
+  async function waitForBookingPageControls(config) {
     const timeoutMs = 6000;
     const deadline = Date.now() + timeoutMs;
     const targetPassValue = `${config.passTypeNum}: Object`;
@@ -1978,10 +1978,9 @@
       const dateReady = !!dateInput && !dateInput.disabled;
       const passTypeReady = !!passTypeSelect && Array.from(passTypeSelect.options || []).some((option) => String(option.value || "").trim() === targetPassValue);
       const visitTimeReady = !!document.querySelector(targetVisitSelector);
-      const nextButtonReady = !requireNextButton || !!document.querySelector(SELECTORS.nextButton);
       const countReady = config.park === "joffre_lakes" ? !!document.querySelector(SELECTORS.passCount) : true;
 
-      if (dateReady && passTypeReady && visitTimeReady && nextButtonReady && countReady) {
+      if (dateReady && passTypeReady && visitTimeReady && countReady) {
         return true;
       }
 
@@ -1989,6 +1988,21 @@
     }
 
     throw new Error("Booking page controls did not fully hydrate in time.");
+  }
+
+  async function waitForNextButtonReady(timeoutMs = 6000) {
+    const deadline = Date.now() + timeoutMs;
+
+    while (Date.now() < deadline) {
+      const nextButton = document.querySelector(SELECTORS.nextButton);
+      if (nextButton && !nextButton.disabled) {
+        return nextButton;
+      }
+
+      await wait(75);
+    }
+
+    throw new Error("Next button did not become ready in time.");
   }
 
   async function primeBooking(config, { requireNextButton = false } = {}) {
@@ -2000,13 +2014,17 @@
       numberOfPasses: normalized.numberOfPasses
     });
 
-    await waitForBookingPageControls(normalized, { requireNextButton });
+    await waitForBookingPageControls(normalized);
     await setDateValue(normalized.date);
     await selectPassType(normalized.passTypeNum);
     await selectVisitTime(normalized.visitTime);
 
     if (normalized.park === "joffre_lakes") {
       await selectPassCount(normalized.numberOfPasses);
+    }
+
+    if (requireNextButton) {
+      await waitForNextButtonReady();
     }
 
     return normalized;
@@ -2248,7 +2266,16 @@
       const countSelect = buildCountSelect(booking.numberOfPasses);
 
       const releaseInput = createElement("input", {
-        attrs: { type: "time", step: "1" }
+        attrs: {
+          type: "text",
+          inputmode: "numeric",
+          placeholder: "HH:MM:SS",
+          autocomplete: "off",
+          spellcheck: "false",
+          maxlength: "8",
+          pattern: "\\d{2}:\\d{2}:\\d{2}",
+          title: "Use HH:MM:SS"
+        }
       });
       releaseInput.value = state.schedule.releaseTime;
 
