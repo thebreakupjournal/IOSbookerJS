@@ -77,7 +77,7 @@
             <div class="section-label">Setup progress</div>
             <h2 id="progress-title">Step 1 of 5</h2>
           </div>
-          <div class="progress-meta" id="progress-meta">Bookmark the guide page.</div>
+          <div class="progress-meta" id="progress-meta">Bookmark the guide page or tap the step chips to jump around.</div>
         </div>
         <div class="progress-track" aria-hidden="true">
           <div class="progress-fill" id="progress-fill"></div>
@@ -115,6 +115,14 @@
             <code>guide/favicon.svg</code>, so the bookmark looks like a real product page instead of
             a plain text link.
           </p>
+          <div class="action-row">
+            <button class="button primary" id="open-share-sheet" type="button">Open share sheet</button>
+            <button class="button secondary" id="copy-page-link" type="button">Copy page link</button>
+          </div>
+          <p class="step-status" id="bookmark-status">Use the share sheet to save the page.</p>
+          <div class="callout">
+            On iPhone, tap Share in Safari, then choose Add Bookmark or Add to Home Screen.
+          </div>
           <ul class="checklist">
             <li>Add the page to bookmarks or favorites.</li>
             <li>Keep it on your iPhone so you can return to the setup steps.</li>

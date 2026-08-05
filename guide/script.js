@@ -5,6 +5,9 @@
   const copyButton = document.getElementById("copy-code");
   const copyBookmarkletButton = document.getElementById("copy-bookmarklet");
   const copyStatus = document.getElementById("copy-status");
+  const bookmarkStatus = document.getElementById("bookmark-status");
+  const shareButton = document.getElementById("open-share-sheet");
+  const copyLinkButton = document.getElementById("copy-page-link");
   const progressFill = document.getElementById("progress-fill");
   const progressTitle = document.getElementById("progress-title");
   const progressMeta = document.getElementById("progress-meta");
@@ -49,6 +52,12 @@
     copyStatus.textContent = message;
   }
 
+  function setBookmarkStatus(message) {
+    if (bookmarkStatus) {
+      bookmarkStatus.textContent = message;
+    }
+  }
+
   function selectCode() {
     code.focus();
     code.select();
@@ -60,8 +69,20 @@
       await navigator.clipboard.writeText(text);
       return true;
     }
-    selectCode();
-    return document.execCommand("copy");
+    const temp = document.createElement("textarea");
+    temp.value = text;
+    temp.setAttribute("readonly", "");
+    temp.style.position = "fixed";
+    temp.style.opacity = "0";
+    temp.style.pointerEvents = "none";
+    temp.style.left = "-9999px";
+    document.body.appendChild(temp);
+    temp.focus();
+    temp.select();
+    temp.setSelectionRange(0, temp.value.length);
+    const copied = document.execCommand("copy");
+    temp.remove();
+    return copied;
   }
 
   async function handleCopy() {
@@ -78,6 +99,50 @@
       selectCode();
       window.prompt("Copy this bookmarklet", bookmarklet);
       console.warn("[BCParkGuide] Copy failed", error);
+    }
+  }
+
+  async function handleShare() {
+    const shareData = {
+      title: document.title,
+      text: "BC Parks setup guide",
+      url: window.location.href
+    };
+
+    try {
+      if (navigator.share && typeof navigator.share === "function") {
+        await navigator.share(shareData);
+        setBookmarkStatus("Share sheet opened. Use Safari's bookmark flow from there.");
+        return;
+      }
+
+      await copyText(window.location.href);
+      setBookmarkStatus("Share sheet unavailable here. Page link copied instead.");
+      if (copyLinkButton) {
+        copyLinkButton.textContent = "Link copied";
+        window.setTimeout(() => {
+          copyLinkButton.textContent = "Copy page link";
+        }, 1600);
+      }
+    } catch (error) {
+      console.warn("[BCParkGuide] Share failed", error);
+      setBookmarkStatus("Share failed. Copy the page link and bookmark it from Safari.");
+      window.prompt("Copy this page link", window.location.href);
+    }
+  }
+
+  async function handleCopyLink() {
+    try {
+      await copyText(window.location.href);
+      setBookmarkStatus("Page link copied. Paste it into Safari or share it from there.");
+      copyLinkButton.textContent = "Link copied";
+      window.setTimeout(() => {
+        copyLinkButton.textContent = "Copy page link";
+      }, 1600);
+    } catch (error) {
+      console.warn("[BCParkGuide] Copy link failed", error);
+      setBookmarkStatus("Could not copy the link. The URL is selected in the prompt.");
+      window.prompt("Copy this page link", window.location.href);
     }
   }
 
@@ -128,6 +193,12 @@
   code.value = bookmarklet;
   copyButton.addEventListener("click", handleCopy);
   copyBookmarkletButton.addEventListener("click", handleCopy);
+  if (shareButton) {
+    shareButton.addEventListener("click", handleShare);
+  }
+  if (copyLinkButton) {
+    copyLinkButton.addEventListener("click", handleCopyLink);
+  }
 
   stepButtons.forEach((button, index) => {
     button.addEventListener("click", () => scrollToStep(steps[index].key));

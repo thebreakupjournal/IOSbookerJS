@@ -319,6 +319,10 @@ textarea:focus-visible {
 .progress-card {
   margin-top: 18px;
   padding: 18px;
+  position: sticky;
+  top: 82px;
+  z-index: 12;
+  background: rgba(255, 255, 255, 0.95);
 }
 
 .progress-top {
@@ -331,6 +335,8 @@ textarea:focus-visible {
 
 .progress-meta {
   color: var(--muted);
+  max-width: 28ch;
+  text-align: right;
 }
 
 .progress-track {
@@ -407,6 +413,13 @@ textarea:focus-visible {
   scroll-margin-top: 120px;
 }
 
+.action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
 .step-head {
   display: flex;
   align-items: center;
@@ -476,6 +489,12 @@ textarea:focus {
 }
 
 .status {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.step-status {
+  margin-top: 12px;
   color: var(--muted);
   font-size: 0.92rem;
 }
@@ -570,6 +589,15 @@ a {
     flex-direction: column;
   }
 
+  .progress-card {
+    top: 72px;
+  }
+
+  .progress-meta {
+    max-width: none;
+    text-align: left;
+  }
+
   .step-strip {
     grid-template-columns: repeat(5, minmax(120px, 1fr));
   }
@@ -580,6 +608,7 @@ a {
   }
 
   .hero-actions,
+  .action-row,
   .copy-row,
   .footer {
     align-items: stretch;
