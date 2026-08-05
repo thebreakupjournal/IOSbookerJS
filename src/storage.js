@@ -95,11 +95,12 @@
     const requestedTime = String(input.visitTime || fallback.visitTime).trim();
     const visitTime = allowedTimes.includes(requestedTime) ? requestedTime : allowedTimes[0];
     const numberOfPasses = String(input.numberOfPasses || fallback.numberOfPasses || "4").trim() || "4";
+    const date = /^\d{4}-\d{2}-\d{2}$/.test(String(input.date || "")) ? String(input.date).trim() : fallback.date;
 
     return {
       ...fallback,
       ...input,
-      date: fallback.date,
+      date,
       park,
       passTypeNum: pass ? String(pass.value) : fallback.passTypeNum,
       passLabel: pass ? pass.label : fallback.passLabel,
@@ -142,6 +143,7 @@
   function writeBookingConfig(config) {
     const normalized = normalizeBookingConfig(config);
     const storageValue = {
+      date: normalized.date,
       park: normalized.park,
       passTypeNum: normalized.passTypeNum,
       passLabel: normalized.passLabel,

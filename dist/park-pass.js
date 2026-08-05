@@ -176,11 +176,12 @@
     const requestedTime = String(input.visitTime || fallback.visitTime).trim();
     const visitTime = allowedTimes.includes(requestedTime) ? requestedTime : allowedTimes[0];
     const numberOfPasses = String(input.numberOfPasses || fallback.numberOfPasses || "4").trim() || "4";
+    const date = /^\d{4}-\d{2}-\d{2}$/.test(String(input.date || "")) ? String(input.date).trim() : fallback.date;
 
     return {
       ...fallback,
       ...input,
-      date: fallback.date,
+      date,
       park,
       passTypeNum: pass ? String(pass.value) : fallback.passTypeNum,
       passLabel: pass ? pass.label : fallback.passLabel,
@@ -223,6 +224,7 @@
   function writeBookingConfig(config) {
     const normalized = normalizeBookingConfig(config);
     const storageValue = {
+      date: normalized.date,
       park: normalized.park,
       passTypeNum: normalized.passTypeNum,
       passLabel: normalized.passLabel,
@@ -1173,12 +1175,15 @@
       #bc-park-tool-root .bc-park-tool-field input,
       #bc-park-tool-root .bc-park-tool-field select {
         width: 100%;
+        max-width: 100%;
+        min-width: 0;
         border-radius: 16px;
         border: 1px solid var(--bcpark-border);
         padding: 12px 14px;
         background: #ffffff;
         color: var(--bcpark-text);
         font: inherit;
+        font-size: 16px;
         outline: none;
         min-height: 48px;
       }
@@ -1191,6 +1196,12 @@
 
       #bc-park-tool-root .bc-park-tool-field input[type="time"] {
         letter-spacing: 0.04em;
+      }
+
+      #bc-park-tool-root .bc-park-tool-field input[type="date"],
+      #bc-park-tool-root .bc-park-tool-field input[type="time"] {
+        -webkit-appearance: none;
+        appearance: none;
       }
 
       #bc-park-tool-root .bc-park-tool-field input::-webkit-datetime-edit,
@@ -1274,9 +1285,13 @@
 
       #bc-park-tool-root .bc-park-tool-inline {
         display: grid;
-        grid-template-columns: minmax(0, 1.8fr) minmax(96px, 0.6fr);
+        grid-template-columns: minmax(0, 1.4fr) minmax(82px, 0.6fr);
         gap: 12px;
         align-items: end;
+      }
+
+      #bc-park-tool-root .bc-park-tool-inline > * {
+        min-width: 0;
       }
 
       #bc-park-tool-root .bc-park-tool-error-banner {
@@ -2711,15 +2726,12 @@
       state.booking = freshBookingState();
       state.schedule = normalizeScheduleConfig(readScheduleConfig());
       resetActionButtons();
+      hud.minimize();
       setModalVisible(true);
       renderBookingFields();
       renderPreview();
       setError("");
       setBusy(false);
-      const initialInput = bookingDateField.querySelector("input") || leadField.querySelector("input");
-      if (initialInput) {
-        initialInput.focus();
-      }
     }
 
     function close() {

@@ -762,15 +762,12 @@
       state.booking = freshBookingState();
       state.schedule = normalizeScheduleConfig(readScheduleConfig());
       resetActionButtons();
+      hud.minimize();
       setModalVisible(true);
       renderBookingFields();
       renderPreview();
       setError("");
       setBusy(false);
-      const initialInput = bookingDateField.querySelector("input") || leadField.querySelector("input");
-      if (initialInput) {
-        initialInput.focus();
-      }
     }
 
     function close() {
