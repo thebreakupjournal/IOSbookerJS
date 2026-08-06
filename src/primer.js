@@ -1,6 +1,7 @@
 (() => {
   const root = window.BCParkTool = window.BCParkTool || {};
   const { PARKS, SELECTORS, DEFAULT_BOOKING_CONFIG, DEFAULT_SCHEDULE_CONFIG } = root.constants;
+  const { COUNTRY_OPTIONS } = root.countries;
   const {
     wait,
     createElement,
@@ -21,6 +22,7 @@
     appendTurnstileRun,
     clearTurnstileRuns
   } = root.storage;
+  const { createPage2Automation } = root.page2;
 
   function getPassOptions(parkKey) {
     return PARKS[parkKey]?.passes || PARKS[DEFAULT_BOOKING_CONFIG.park].passes;
@@ -246,17 +248,31 @@
     const scheduleSectionTitle = createElement("div", { className: "bc-park-tool-section-title", textContent: "Schedule" });
     const scheduleSectionCopy = createElement("div", {
       className: "bc-park-tool-section-copy",
-      textContent: "Set the release time and lead seconds for the Next click."
+      textContent: "Set the release time, lead seconds, and Page 2 settle delay."
     });
     const scheduleSectionBody = createElement("div", { className: "bc-park-tool-section-body" });
     const bookingGrid = createElement("div", { className: "bc-park-tool-grid" });
     const scheduleGrid = createElement("div", { className: "bc-park-tool-grid" });
+    const page2Section = createElement("section", { className: "bc-park-tool-section" });
+    const page2SectionHead = createElement("div", { className: "bc-park-tool-section-head" });
+    const page2SectionTitle = createElement("div", { className: "bc-park-tool-section-title", textContent: "Page 2" });
+    const page2SectionCopy = createElement("div", {
+      className: "bc-park-tool-section-copy",
+      textContent: "Fill the traveler details after Next and wait for the token to settle."
+    });
+    const page2SectionBody = createElement("div", { className: "bc-park-tool-section-body" });
+    const page2Grid = createElement("div", { className: "bc-park-tool-grid" });
     const bookingDateField = createElement("label", { className: "bc-park-tool-field" });
     const parkField = createElement("label", { className: "bc-park-tool-field" });
     const passField = createElement("label", { className: "bc-park-tool-field" });
     const visitField = createElement("label", { className: "bc-park-tool-field" });
+    const firstNameField = createElement("label", { className: "bc-park-tool-field" });
+    const lastNameField = createElement("label", { className: "bc-park-tool-field" });
+    const emailField = createElement("label", { className: "bc-park-tool-field" });
+    const countryField = createElement("label", { className: "bc-park-tool-field" });
     const releaseField = createElement("label", { className: "bc-park-tool-field" });
     const leadField = createElement("label", { className: "bc-park-tool-field" });
+    const page2DelayField = createElement("label", { className: "bc-park-tool-field" });
     const passCountWrapper = createElement("div", { className: "bc-park-tool-field" });
     const preview = createElement("div", { className: "bc-park-tool-preview" });
     const previewLabel = createElement("div", { className: "preview-label", textContent: "Estimated click time" });
@@ -312,6 +328,7 @@
       open: false,
       busy: false
     };
+    const page2Automation = createPage2Automation({ logger: console });
 
     function freshBookingState() {
       return normalizeBookingConfig({
@@ -536,10 +553,15 @@
       const parkSelect = parkField.querySelector("select");
       const passSelect = passField.querySelector("select");
       const visitSelect = visitField.querySelector("select");
+      const firstNameInput = page2Section.querySelector('input[data-field="firstName"]');
+      const lastNameInput = page2Section.querySelector('input[data-field="lastName"]');
+      const emailInput = page2Section.querySelector('input[data-field="email"]');
+      const countrySelect = page2Section.querySelector('select[data-field="countryOfResidence"]');
       const countSelect = passCountWrapper.querySelector("select");
       const releaseTimeInput = releaseField.querySelector('input[type="time"]');
       const releaseSecondsSelect = releaseField.querySelector('select[data-release-part="seconds"]');
       const leadInput = leadField.querySelector("input");
+      const page2DelayInput = page2DelayField.querySelector("input");
 
       const park = parkSelect?.value || DEFAULT_BOOKING_CONFIG.park;
       const pass = getPassByValue(park, passSelect?.value?.split(":")[0] || state.booking.passTypeNum);
@@ -550,11 +572,17 @@
         passTypeNum: pass?.value || state.booking.passTypeNum,
         passLabel: pass?.label || state.booking.passLabel,
         visitTime,
-        numberOfPasses: countSelect?.value || state.booking.numberOfPasses
+        numberOfPasses: countSelect?.value || state.booking.numberOfPasses,
+        firstName: firstNameInput?.value ?? state.booking.firstName,
+        lastName: lastNameInput?.value ?? state.booking.lastName,
+        email: emailInput?.value ?? state.booking.email,
+        countryOfResidence: countrySelect?.value ?? state.booking.countryOfResidence,
+        testing: state.booking.testing
       });
       const schedule = normalizeScheduleConfig({
         releaseTime: composeReleaseTime(releaseTimeInput?.value, releaseSecondsSelect?.value),
-        leadSeconds: leadInput?.value || state.schedule.leadSeconds
+        leadSeconds: leadInput?.value || state.schedule.leadSeconds,
+        page2SubmitDelayMs: page2DelayInput?.value ?? state.schedule.page2SubmitDelayMs
       });
 
       state.booking = booking;
@@ -658,6 +686,30 @@
         );
       }
       select.value = ["1", "2", "3", "4"].includes(numberOfPasses) ? numberOfPasses : "4";
+      return select;
+    }
+
+    function buildCountrySelect(countryOfResidence) {
+      const select = createElement("select", {
+        attrs: { "data-field": "countryOfResidence" }
+      });
+      select.append(
+        createElement("option", {
+          attrs: { value: "", disabled: true },
+          textContent: "Select a country"
+        })
+      );
+      for (const country of COUNTRY_OPTIONS) {
+        select.append(
+          createElement("option", {
+            attrs: { value: country },
+            textContent: country
+          })
+        );
+      }
+
+      const normalized = COUNTRY_OPTIONS.includes(countryOfResidence) ? countryOfResidence : "Canada";
+      select.value = normalized;
       return select;
     }
 
@@ -795,6 +847,38 @@
       const visitTimeSelect = buildVisitTimeSelect(booking.park, booking.passTypeNum, booking.visitTime);
 
       const countSelect = buildCountSelect(booking.numberOfPasses);
+      const firstNameInput = createElement("input", {
+        attrs: {
+          type: "text",
+          autocomplete: "given-name",
+          spellcheck: "false",
+          "data-field": "firstName"
+        }
+      });
+      firstNameInput.value = booking.firstName || "";
+
+      const lastNameInput = createElement("input", {
+        attrs: {
+          type: "text",
+          autocomplete: "family-name",
+          spellcheck: "false",
+          "data-field": "lastName"
+        }
+      });
+      lastNameInput.value = booking.lastName || "";
+
+      const emailInput = createElement("input", {
+        attrs: {
+          type: "email",
+          autocomplete: "email",
+          spellcheck: "false",
+          inputmode: "email",
+          "data-field": "email"
+        }
+      });
+      emailInput.value = booking.email || "";
+
+      const countrySelect = buildCountrySelect(booking.countryOfResidence);
 
       const releaseTimeInput = buildReleaseTimeInput(releaseParts.timePart);
       const releaseSecondsSelect = buildReleaseSecondsSelect(releaseParts.secondsPart);
@@ -804,6 +888,21 @@
         attrs: { type: "number", min: "0", step: "0.001", inputmode: "decimal" }
       });
       leadInput.value = state.schedule.leadSeconds;
+
+      const page2DelayInput = createElement("input", {
+        attrs: {
+          type: "number",
+          min: "0",
+          step: "100",
+          inputmode: "numeric",
+          "data-field": "page2SubmitDelayMs"
+        }
+      });
+      page2DelayInput.value = String(Number.isFinite(state.schedule.page2SubmitDelayMs) ? state.schedule.page2SubmitDelayMs : 10000);
+      page2DelayField.replaceChildren(
+        createElement("span", { textContent: "Page 2 settle delay (ms)" }),
+        page2DelayInput
+      );
 
       bookingDateField.replaceChildren(
         createElement("span", { textContent: "Booking date" }),
@@ -825,6 +924,22 @@
         createElement("span", { textContent: "Number of passes" }),
         countSelect
       );
+      firstNameField.replaceChildren(
+        createElement("span", { textContent: "First name" }),
+        firstNameInput
+      );
+      lastNameField.replaceChildren(
+        createElement("span", { textContent: "Last name" }),
+        lastNameInput
+      );
+      emailField.replaceChildren(
+        createElement("span", { textContent: "Email" }),
+        emailInput
+      );
+      countryField.replaceChildren(
+        createElement("span", { textContent: "Country of residence" }),
+        countrySelect
+      );
       releaseTimeRow.replaceChildren(releaseTimeInput, releaseSecondsSelect);
       releaseField.replaceChildren(
         createElement("span", { textContent: "Release time" }),
@@ -841,6 +956,13 @@
         passField,
         visitField,
         passCountWrapper
+      );
+
+      page2Grid.replaceChildren(
+        firstNameField,
+        lastNameField,
+        emailField,
+        countryField
       );
 
       scheduleGrid.replaceChildren(
@@ -876,14 +998,34 @@
         passTypeNum: passSelect.value,
         passLabel: getPassByValue(parkSelect.value, passSelect.value).label,
         visitTime: visitTimeSelect.value,
-        numberOfPasses: countSelect.value
+        numberOfPasses: countSelect.value,
+        firstName: firstNameInput.value,
+        lastName: lastNameInput.value,
+        email: emailInput.value,
+        countryOfResidence: countrySelect.value,
+        testing: state.booking.testing
       });
       state.schedule = normalizeScheduleConfig({
         releaseTime: composeReleaseTime(releaseTimeInput.value, releaseSecondsSelect.value),
-        leadSeconds: leadInput.value
+        leadSeconds: leadInput.value,
+        page2SubmitDelayMs: page2DelayInput.value
       });
 
-      const inputs = [bookingDateInput, parkSelect, passSelect, visitTimeSelect, countSelect, releaseTimeInput, releaseSecondsSelect, leadInput];
+      const inputs = [
+        bookingDateInput,
+        parkSelect,
+        passSelect,
+        visitTimeSelect,
+        countSelect,
+        firstNameInput,
+        lastNameInput,
+        emailInput,
+        countrySelect,
+        releaseTimeInput,
+        releaseSecondsSelect,
+        leadInput,
+        page2DelayInput
+      ];
       for (const input of inputs) {
         input.addEventListener("input", onFieldChange);
         input.addEventListener("change", onFieldChange);
@@ -964,6 +1106,7 @@
         persistState();
         renderPreview();
       });
+
     }
 
     function onFieldChange() {
@@ -975,9 +1118,14 @@
       try {
         setError("");
         setBusy(true);
+        page2Automation.stop();
         syncStateFromInputs();
         persistState();
         await primeBooking(state.booking, { requireNextButton: false });
+        page2Automation.start({
+          booking: state.booking,
+          schedule: state.schedule
+        });
         hud.setScheduleState({
           status: "primed",
           nextClickMs: null,
@@ -993,6 +1141,7 @@
         await wait(450);
         setModalVisible(false);
       } catch (error) {
+        page2Automation.stop();
         const message = error.stack || error.message || String(error);
         console.error("[BCParkTool][primer] Prime Only failed", error);
         setError(message);
@@ -1005,6 +1154,7 @@
       try {
         setError("");
         setBusy(true);
+        page2Automation.stop();
         syncStateFromInputs();
         persistState();
         await primeBooking(state.booking, { requireNextButton: true });
@@ -1036,6 +1186,7 @@
         setActiveTab("timings");
         renderTimingPanel();
       } catch (error) {
+        page2Automation.stop();
         const message = error.stack || error.message || String(error);
         console.error("[BCParkTool][primer] Test failed", error);
         setModalVisible(true);
@@ -1050,9 +1201,14 @@
       try {
         setError("");
         setBusy(true);
+        page2Automation.stop();
         syncStateFromInputs();
         persistState();
         await primeBooking(state.booking, { requireNextButton: true });
+        page2Automation.start({
+          booking: state.booking,
+          schedule: state.schedule
+        });
         if (typeof onArm === "function") {
           await onArm({
             booking: state.booking,
@@ -1065,6 +1221,7 @@
         await wait(450);
         setModalVisible(false);
       } catch (error) {
+        page2Automation.stop();
         const message = error.stack || error.message || String(error);
         console.error("[BCParkTool][primer] Prime & Arm failed", error);
         setError(message);
@@ -1074,6 +1231,7 @@
     }
 
     function open() {
+      page2Automation.stop();
       state.booking = freshBookingState();
       state.schedule = normalizeScheduleConfig(readScheduleConfig());
       resetActionButtons();
@@ -1121,8 +1279,12 @@
     bookingSectionBody.append(bookingGrid);
     bookingSection.append(bookingSectionHead, bookingSectionBody);
 
+    page2SectionHead.append(page2SectionTitle, page2SectionCopy);
+    page2SectionBody.append(page2Grid);
+    page2Section.append(page2SectionHead, page2SectionBody);
+
     scheduleSectionHead.append(scheduleSectionTitle, scheduleSectionCopy);
-    scheduleSectionBody.append(scheduleGrid);
+    scheduleSectionBody.append(scheduleGrid, page2DelayField);
     scheduleSection.append(scheduleSectionHead, scheduleSectionBody);
 
     timingActions.append(timingCopyButton, timingClearButton);
@@ -1138,6 +1300,7 @@
 
     form.append(
       bookingSection,
+      page2Section,
       scheduleSection,
       createElement("div", {
         className: "bc-park-tool-note",

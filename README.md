@@ -7,7 +7,8 @@ Scope for this version:
 - Prime Page 1 fields.
 - Display a synchronized BC Parks clock HUD with milliseconds.
 - Arm a scheduled Page 1 `Next` click.
-- Stop after the Page 1 `Next` click. Page 2 automation is intentionally not included.
+- Fill Page 2 traveler details, including country of residence.
+- Wait a configurable settle delay before submitting Page 2.
 
 ## Files
 
@@ -73,7 +74,5 @@ The app assumes it is running on the BC Parks reservation page. If you open it e
 
 ## Current Limitations
 
-- No Page 2 autofill.
-- No final submission.
 - No aggressive polling or background operation.
 - No service workers or multi-tab coordination.

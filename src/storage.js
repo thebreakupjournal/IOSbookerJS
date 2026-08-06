@@ -1,6 +1,7 @@
 (() => {
   const root = window.BCParkTool = window.BCParkTool || {};
   const { STORAGE_KEYS, DEFAULT_BOOKING_CONFIG, DEFAULT_SCHEDULE_CONFIG, PARKS } = root.constants;
+  const COUNTRY_OPTIONS = root.countries?.COUNTRY_OPTIONS || [];
 
   const memoryFallback = new Map();
 
@@ -96,6 +97,12 @@
     const visitTime = allowedTimes.includes(requestedTime) ? requestedTime : allowedTimes[0];
     const numberOfPasses = String(input.numberOfPasses || fallback.numberOfPasses || "4").trim() || "4";
     const date = /^\d{4}-\d{2}-\d{2}$/.test(String(input.date || "")) ? String(input.date).trim() : fallback.date;
+    const firstName = String(input.firstName ?? fallback.firstName ?? "").trim();
+    const lastName = String(input.lastName ?? fallback.lastName ?? "").trim();
+    const email = String(input.email ?? fallback.email ?? "").trim();
+    const requestedCountry = String(input.countryOfResidence || input.country || fallback.countryOfResidence || "Canada").trim() || "Canada";
+    const countryOfResidence = COUNTRY_OPTIONS.includes(requestedCountry) ? requestedCountry : fallback.countryOfResidence || "Canada";
+    const testing = !!input.testing;
 
     return {
       ...fallback,
@@ -105,16 +112,29 @@
       passTypeNum: pass ? String(pass.value) : fallback.passTypeNum,
       passLabel: pass ? pass.label : fallback.passLabel,
       visitTime,
-      numberOfPasses
+      numberOfPasses,
+      firstName,
+      lastName,
+      email,
+      countryOfResidence,
+      testing
     };
   }
 
   function normalizeScheduleConfig(input = {}) {
+    const rawDelay = input.page2SubmitDelayMs;
+    const page2SubmitDelayMs = rawDelay === "" || rawDelay == null
+      ? DEFAULT_SCHEDULE_CONFIG.page2SubmitDelayMs
+      : Number.isFinite(Number(rawDelay))
+        ? Math.max(0, Math.round(Number(rawDelay)))
+        : DEFAULT_SCHEDULE_CONFIG.page2SubmitDelayMs;
+
     return {
       ...DEFAULT_SCHEDULE_CONFIG,
       ...input,
       releaseTime: String(input.releaseTime || DEFAULT_SCHEDULE_CONFIG.releaseTime).trim(),
-      leadSeconds: String(input.leadSeconds || DEFAULT_SCHEDULE_CONFIG.leadSeconds).trim()
+      leadSeconds: String(input.leadSeconds ?? DEFAULT_SCHEDULE_CONFIG.leadSeconds).trim() || DEFAULT_SCHEDULE_CONFIG.leadSeconds,
+      page2SubmitDelayMs
     };
   }
 
@@ -168,7 +188,12 @@
       passTypeNum: normalized.passTypeNum,
       passLabel: normalized.passLabel,
       visitTime: normalized.visitTime,
-      numberOfPasses: normalized.numberOfPasses
+      numberOfPasses: normalized.numberOfPasses,
+      firstName: normalized.firstName,
+      lastName: normalized.lastName,
+      email: normalized.email,
+      countryOfResidence: normalized.countryOfResidence,
+      testing: normalized.testing
     };
     return writeJson(STORAGE_KEYS.bookingConfig, storageValue);
   }

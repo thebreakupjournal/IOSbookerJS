@@ -40,7 +40,14 @@
     visitTimePrefix: "input#visitTime",
     passCount: "select#passCount",
     nextButton: 'button[data-bs-target="#turnstileModal"]',
-    turnstileComplete: "#firstName"
+    turnstileComplete: "#firstName",
+    page2FirstName: "#firstName",
+    page2LastName: "#lastName",
+    page2Email: "#email",
+    page2EmailCheck: "#emailCheck",
+    page2Country: 'select#country, select[formcontrolname="country"]',
+    page2AgreeLabelText: "I have read and agree to the above notice",
+    page2SubmitButton: "button.btn.btn-primary"
   });
 
   const TIME_ZONE = "America/Los_Angeles";
@@ -50,12 +57,18 @@
     passTypeNum: "1",
     passLabel: "Cheakamus - Parking",
     visitTime: "AM",
-    numberOfPasses: "4"
+    numberOfPasses: "4",
+    firstName: "",
+    lastName: "",
+    email: "",
+    countryOfResidence: "Canada",
+    testing: false
   });
 
   const DEFAULT_SCHEDULE_CONFIG = Object.freeze({
     releaseTime: "07:00:00",
-    leadSeconds: "4.000"
+    leadSeconds: "4.000",
+    page2SubmitDelayMs: 10000
   });
 
   const CLOCK_CONSTANTS = Object.freeze({
