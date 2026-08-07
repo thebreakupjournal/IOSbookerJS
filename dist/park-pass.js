@@ -3136,7 +3136,7 @@
     }
 
     function formatTimingValue(value) {
-      return Number.isFinite(value) ? `${Math.round(value)} ms` : "â€”";
+      return Number.isFinite(value) ? `${Math.round(value)} ms` : "-";
     }
 
     function formatTimingTimestamp(ts) {
