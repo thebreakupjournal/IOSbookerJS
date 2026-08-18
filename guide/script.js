@@ -1,67 +1,27 @@
 (() => {
-  const bookmarklet = `javascript:(async()=>{try{const u="https://raw.githubusercontent.com/thebreakupjournal/IOSbookerJS/agent/bc-parks-bookmarklet/dist/park-pass.js?t="+Date.now();const r=await fetch(u,{cache:"no-store"});if(!r.ok)throw new Error("HTTP "+r.status);const code=await r.text();(0,eval)(code)}catch(e){alert("Park Pass failed:\\n\\n"+(e.stack||e.message||String(e)))}})();`;
+  "use strict";
 
-  const code = document.getElementById("bookmarklet-code");
-  const copyButton = document.getElementById("copy-code");
-  const copyBookmarkletButton = document.getElementById("copy-bookmarklet");
-  const copyStatus = document.getElementById("copy-status");
-  const bookmarkStatus = document.getElementById("bookmark-status");
+  const menuButton = document.querySelector(".menu-button");
+  const mobileNav = document.querySelector(".mobile-nav");
+  const progressBar = document.querySelector(".progress-bar");
   const shareButton = document.getElementById("open-share-sheet");
-  const copyLinkButton = document.getElementById("copy-page-link");
-  const progressFill = document.getElementById("progress-fill");
-  const progressTitle = document.getElementById("progress-title");
-  const progressMeta = document.getElementById("progress-meta");
-  const stepStrip = document.getElementById("step-strip");
-  const stepButtons = Array.from(document.querySelectorAll(".step-chip"));
-  const stepSections = Array.from(document.querySelectorAll("[data-step-index]"));
+  const toast = document.querySelector(".toast");
 
-  const steps = [
-    {
-      key: "bookmark",
-      title: "Step 1 of 5",
-      meta: "Bookmark the guide page.",
-      progress: 20
-    },
-    {
-      key: "loader",
-      title: "Step 2 of 5",
-      meta: "Copy the bookmarklet loader.",
-      progress: 40
-    },
-    {
-      key: "open",
-      title: "Step 3 of 5",
-      meta: "Open the BC Parks reservation page.",
-      progress: 60
-    },
-    {
-      key: "prime",
-      title: "Step 4 of 5",
-      meta: "Set release time and prime the booking.",
-      progress: 80
-    },
-    {
-      key: "test",
-      title: "Step 5 of 5",
-      meta: "Run tests and review timing results.",
-      progress: 100
-    }
-  ];
-
-  function setStatus(message) {
-    copyStatus.textContent = message;
+  function showToast(message) {
+    toast.textContent = message;
+    toast.classList.add("visible");
+    clearTimeout(showToast.timeout);
+    showToast.timeout = setTimeout(() => toast.classList.remove("visible"), 1800);
   }
 
-  function setBookmarkStatus(message) {
-    if (bookmarkStatus) {
-      bookmarkStatus.textContent = message;
+  function readCopyText(target) {
+    if (!target) {
+      return "";
     }
-  }
-
-  function selectCode() {
-    code.focus();
-    code.select();
-    code.setSelectionRange(0, code.value.length);
+    if ("value" in target) {
+      return String(target.value || "").trim();
+    }
+    return String(target.textContent || "").trim();
   }
 
   async function copyText(text) {
@@ -69,6 +29,7 @@
       await navigator.clipboard.writeText(text);
       return true;
     }
+
     const temp = document.createElement("textarea");
     temp.value = text;
     temp.setAttribute("readonly", "");
@@ -85,144 +46,87 @@
     return copied;
   }
 
-  async function handleCopy() {
-    try {
-      await copyText(bookmarklet);
-      setStatus("Copied. Paste it into the bookmark you keep for BC Parks.");
-      copyButton.textContent = "Copied";
-      window.setTimeout(() => {
-        copyButton.textContent = "Copy code";
-        setStatus("Ready to copy.");
-      }, 1800);
-    } catch (error) {
-      setStatus("Copy failed. The code is selected for manual copy.");
-      selectCode();
-      window.prompt("Copy this bookmarklet", bookmarklet);
-      console.warn("[BCParkGuide] Copy failed", error);
+  menuButton?.addEventListener("click", () => {
+    const open = mobileNav.classList.toggle("open");
+    menuButton.setAttribute("aria-expanded", String(open));
+  });
+
+  mobileNav?.addEventListener("click", (event) => {
+    if (!event.target.closest("a")) {
+      return;
+    }
+    mobileNav.classList.remove("open");
+    menuButton?.setAttribute("aria-expanded", "false");
+  });
+
+  function updateHeaderProgress() {
+    const max = document.documentElement.scrollHeight - innerHeight;
+    const progress = max > 0 ? Math.min(100, Math.max(0, (scrollY / max) * 100)) : 0;
+    if (progressBar) {
+      progressBar.style.width = `${progress}%`;
     }
   }
 
-  async function handleShare() {
+  addEventListener("scroll", updateHeaderProgress, { passive: true });
+  addEventListener("resize", updateHeaderProgress);
+  updateHeaderProgress();
+
+  document.addEventListener("click", async (event) => {
+    const button = event.target.closest("[data-copy]");
+    if (!button) {
+      return;
+    }
+
+    const literal = button.dataset.copyText;
+    const target = literal ? null : document.querySelector(button.dataset.copy);
+    if (!literal && !target) {
+      return;
+    }
+
+    const text = literal || readCopyText(target);
+    try {
+      await copyText(text);
+      showToast("Copied to clipboard");
+    } catch {
+      const range = document.createRange();
+      const selection = getSelection();
+      if (target.tagName === "TEXTAREA") {
+        target.focus();
+        target.select();
+      } else {
+        range.selectNodeContents(target);
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+      showToast("Select and copy the highlighted text");
+    }
+  });
+
+  shareButton?.addEventListener("click", async () => {
     const shareData = {
       title: document.title,
-      text: "BC Parks setup guide",
+      text: "BC Parks booking guide",
       url: window.location.href
     };
 
     try {
       if (navigator.share && typeof navigator.share === "function") {
         await navigator.share(shareData);
-        setBookmarkStatus("Share sheet opened. Use Safari's bookmark flow from there.");
+        showToast("Share sheet opened");
         return;
       }
 
       await copyText(window.location.href);
-      setBookmarkStatus("Share sheet unavailable here. Page link copied instead.");
-      if (copyLinkButton) {
-        copyLinkButton.textContent = "Link copied";
-        window.setTimeout(() => {
-          copyLinkButton.textContent = "Copy page link";
-        }, 1600);
-      }
-    } catch (error) {
-      console.warn("[BCParkGuide] Share failed", error);
-      setBookmarkStatus("Share failed. Copy the page link and bookmark it from Safari.");
+      showToast("Page link copied");
+    } catch {
       window.prompt("Copy this page link", window.location.href);
     }
-  }
-
-  async function handleCopyLink() {
-    try {
-      await copyText(window.location.href);
-      setBookmarkStatus("Page link copied. Paste it into Safari or share it from there.");
-      copyLinkButton.textContent = "Link copied";
-      window.setTimeout(() => {
-        copyLinkButton.textContent = "Copy page link";
-      }, 1600);
-    } catch (error) {
-      console.warn("[BCParkGuide] Copy link failed", error);
-      setBookmarkStatus("Could not copy the link. The URL is selected in the prompt.");
-      window.prompt("Copy this page link", window.location.href);
-    }
-  }
-
-  function setActiveStep(index) {
-    const clamped = Math.max(0, Math.min(steps.length - 1, index));
-    const step = steps[clamped];
-
-    progressFill.style.width = `${step.progress}%`;
-    progressTitle.textContent = step.title;
-    progressMeta.textContent = step.meta;
-
-    stepButtons.forEach((button, i) => {
-      const active = i === clamped;
-      button.classList.toggle("is-active", active);
-      if (active) {
-        button.setAttribute("aria-current", "step");
-      } else {
-        button.removeAttribute("aria-current");
-      }
-    });
-  }
-
-  function scrollToStep(key) {
-    const target = document.getElementById(key);
-    if (target) {
-      target.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  }
-
-  const observer = new IntersectionObserver((entries) => {
-    const visible = entries
-      .filter((entry) => entry.isIntersecting)
-      .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-
-    if (!visible) {
-      return;
-    }
-
-    const index = Number(visible.target.dataset.stepIndex);
-    if (Number.isFinite(index)) {
-      setActiveStep(index);
-    }
-  }, {
-    rootMargin: "-20% 0px -55% 0px",
-    threshold: [0.12, 0.24, 0.4, 0.6, 0.8]
   });
 
-  code.value = bookmarklet;
-  copyButton.addEventListener("click", handleCopy);
-  copyBookmarkletButton.addEventListener("click", handleCopy);
-  if (shareButton) {
-    shareButton.addEventListener("click", handleShare);
-  }
-  if (copyLinkButton) {
-    copyLinkButton.addEventListener("click", handleCopyLink);
-  }
-
-  stepButtons.forEach((button, index) => {
-    button.addEventListener("click", () => scrollToStep(steps[index].key));
-  });
-
-  stepSections.forEach((section) => observer.observe(section));
-
-  setActiveStep(0);
-
-  if (stepStrip) {
-    stepStrip.addEventListener("keydown", (event) => {
-      const currentIndex = stepButtons.findIndex((button) => button.classList.contains("is-active"));
-      if (event.key === "ArrowRight") {
-        event.preventDefault();
-        const next = Math.min(stepButtons.length - 1, currentIndex + 1);
-        stepButtons[next].focus();
-        scrollToStep(steps[next].key);
-      }
-      if (event.key === "ArrowLeft") {
-        event.preventDefault();
-        const prev = Math.max(0, currentIndex - 1);
-        stepButtons[prev].focus();
-        scrollToStep(steps[prev].key);
-      }
+  document.querySelectorAll(".check-row input").forEach((box, index) => {
+    box.checked = localStorage.getItem(`guide-check-${index}`) === "true";
+    box.addEventListener("change", () => {
+      localStorage.setItem(`guide-check-${index}`, String(box.checked));
     });
-  }
+  });
 })();

@@ -3849,6 +3849,29 @@
       renderPreview();
     }
 
+    function getMissingPage2Fields() {
+      const missing = [];
+      if (!String(state.booking.firstName || "").trim()) {
+        missing.push("first name");
+      }
+      if (!String(state.booking.lastName || "").trim()) {
+        missing.push("last name");
+      }
+      if (!String(state.booking.email || "").trim()) {
+        missing.push("email");
+      }
+      return missing;
+    }
+
+    function confirmPrimeAndArmWithoutPage2Details() {
+      const missingFields = getMissingPage2Fields();
+      if (missingFields.length === 0) {
+        return true;
+      }
+      const fieldList = missingFields.join(", ");
+      return window.confirm(`Page 2 details are incomplete (${fieldList}). Prime / arm will continue, but Page 2 autofill may stop later.\n\nContinue anyway?`);
+    }
+
     async function handlePrimeOnly() {
       try {
         setError("");
@@ -3935,10 +3958,13 @@
     async function handlePrimeAndArm() {
       try {
         setError("");
-        setBusy(true);
-        page2Automation.stop();
         syncStateFromInputs();
         persistState();
+        if (!confirmPrimeAndArmWithoutPage2Details()) {
+          return;
+        }
+        setBusy(true);
+        page2Automation.stop();
         await primeBooking(state.booking, { requireNextButton: true });
         page2Automation.start({
           booking: state.booking,
