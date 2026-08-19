@@ -4,7 +4,9 @@ Drop screenshots and photos for the guide in this folder.
 
 Suggested filenames:
 
-- `step-1-bookmark-share.png`
+- `step-1-bookmark-1.png`
+- `step-1-bookmark-2.png`
+- `step-1-bookmark-3.png`
 - `step-2-canooq-availability.png`
 - `step-3-test-results.png`
 - `step-4-lead-time.png`
