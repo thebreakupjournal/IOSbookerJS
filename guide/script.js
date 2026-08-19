@@ -24,6 +24,104 @@
     return String(target.textContent || "").trim();
   }
 
+  function initCarousel(carousel) {
+    const viewport = carousel.querySelector("[data-carousel-viewport]");
+    const prevButton = carousel.querySelector("[data-carousel-prev]");
+    const nextButton = carousel.querySelector("[data-carousel-next]");
+    const dots = carousel.querySelector("[data-carousel-dots]");
+    const slides = Array.from(carousel.querySelectorAll(".carousel-slide"));
+
+    if (!viewport || slides.length <= 1) {
+      prevButton?.remove();
+      nextButton?.remove();
+      dots?.remove();
+      return;
+    }
+
+    let currentIndex = 0;
+    const dotButtons = [];
+
+    function slideWidth() {
+      return Math.max(1, viewport.clientWidth);
+    }
+
+    function clampIndex(index) {
+      return Math.max(0, Math.min(slides.length - 1, index));
+    }
+
+    function updateState(index) {
+      const nextIndex = clampIndex(index);
+      currentIndex = nextIndex;
+
+      if (prevButton) {
+        prevButton.disabled = nextIndex === 0;
+      }
+      if (nextButton) {
+        nextButton.disabled = nextIndex === slides.length - 1;
+      }
+
+      dotButtons.forEach((dot, dotIndex) => {
+        dot.classList.toggle("is-active", dotIndex === nextIndex);
+        dot.setAttribute("aria-current", dotIndex === nextIndex ? "true" : "false");
+      });
+    }
+
+    function scrollToIndex(index, behavior = "smooth") {
+      const nextIndex = clampIndex(index);
+      viewport.scrollTo({
+        left: nextIndex * slideWidth(),
+        behavior
+      });
+      updateState(nextIndex);
+    }
+
+    if (dots) {
+      dots.innerHTML = "";
+      slides.forEach((_, index) => {
+        const dot = document.createElement("button");
+        dot.type = "button";
+        dot.className = "carousel-dot";
+        dot.setAttribute("aria-label", `Show screenshot ${index + 1}`);
+        dot.addEventListener("click", () => scrollToIndex(index));
+        dots.appendChild(dot);
+        dotButtons.push(dot);
+      });
+    }
+
+    let rafId = 0;
+    const syncFromScroll = () => {
+      if (rafId) {
+        return;
+      }
+      rafId = requestAnimationFrame(() => {
+        rafId = 0;
+        const nextIndex = clampIndex(Math.round(viewport.scrollLeft / slideWidth()));
+        if (nextIndex !== currentIndex) {
+          updateState(nextIndex);
+        }
+      });
+    };
+
+    prevButton?.addEventListener("click", () => scrollToIndex(currentIndex - 1));
+    nextButton?.addEventListener("click", () => scrollToIndex(currentIndex + 1));
+
+    viewport.addEventListener("scroll", syncFromScroll, { passive: true });
+    viewport.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        scrollToIndex(currentIndex - 1);
+      }
+
+      if (event.key === "ArrowRight") {
+        event.preventDefault();
+        scrollToIndex(currentIndex + 1);
+      }
+    });
+
+    addEventListener("resize", () => scrollToIndex(currentIndex, "auto"));
+    updateState(0);
+  }
+
   async function copyText(text) {
     if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
       await navigator.clipboard.writeText(text);
@@ -70,6 +168,8 @@
   addEventListener("scroll", updateHeaderProgress, { passive: true });
   addEventListener("resize", updateHeaderProgress);
   updateHeaderProgress();
+
+  document.querySelectorAll("[data-carousel]").forEach(initCarousel);
 
   document.addEventListener("click", async (event) => {
     const button = event.target.closest("[data-copy]");

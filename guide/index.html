@@ -12,8 +12,8 @@
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <link rel="shortcut icon" href="./favicon.svg">
   <link rel="apple-touch-icon" href="./favicon.svg">
-  <link rel="stylesheet" href="./styles.css?v=20260818-6">
-  <script src="./script.js?v=20260818-6" defer></script>
+  <link rel="stylesheet" href="./styles.css?v=20260819-1">
+  <script src="./script.js?v=20260819-1" defer></script>
 </head>
 <body>
   <header class="site-header">
@@ -86,13 +86,44 @@
           use on the BC Parks page.
         </p>
 
-        <figure class="media-card">
-          <div class="media-placeholder">
-            <span>Bookmark screenshot</span>
-            <small>Replace with assets/step-1-bookmark-share.png</small>
+        <figure class="media-card carousel-card" data-carousel>
+          <div class="carousel-shell">
+            <button class="carousel-control carousel-prev" type="button" data-carousel-prev aria-label="Previous screenshot">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M15.5 4.5a1 1 0 0 1 0 1.4L10.41 11H20a1 1 0 1 1 0 2h-9.59l5.09 5.1a1 1 0 0 1-1.42 1.4l-6.8-6.8a1 1 0 0 1 0-1.4l6.8-6.8a1 1 0 0 1 1.42 0Z"/>
+              </svg>
+            </button>
+            <div class="carousel-viewport" data-carousel-viewport tabindex="0" aria-label="Step 1 screenshots">
+              <div class="carousel-track">
+                <div class="carousel-slide">
+                  <div class="media-placeholder">
+                    <span>Bookmark screenshot</span>
+                    <small>Replace with assets/step-1-bookmark-share.png</small>
+                  </div>
+                </div>
+                <div class="carousel-slide">
+                  <div class="media-placeholder">
+                    <span>Bookmark action</span>
+                    <small>Replace with assets/step-1-add-bookmark.png</small>
+                  </div>
+                </div>
+                <div class="carousel-slide">
+                  <div class="media-placeholder">
+                    <span>Optional extra screenshot</span>
+                    <small>Duplicate this slide for more photos.</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button class="carousel-control carousel-next" type="button" data-carousel-next aria-label="Next screenshot">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M8.5 19.5a1 1 0 0 1 0-1.4l5.09-5.1H4a1 1 0 1 1 0-2h9.59L8.5 5.9a1 1 0 1 1 1.42-1.4l6.8 6.8a1 1 0 0 1 0 1.4l-6.8 6.8a1 1 0 0 1-1.42 0Z"/>
+              </svg>
+            </button>
           </div>
-          <figcaption>
-            Show the bookmark action and the guide icon.
+          <figcaption class="carousel-caption">
+            Swipe through the screenshots or use the arrows. Duplicate a slide block to add more images.
+            <div class="carousel-dots" data-carousel-dots aria-label="Screenshot navigation"></div>
           </figcaption>
         </figure>
 
