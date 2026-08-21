@@ -898,7 +898,9 @@
           "data-field": "page2SubmitDelayMs"
         }
       });
-      page2DelayInput.value = String(Number.isFinite(state.schedule.page2SubmitDelayMs) ? state.schedule.page2SubmitDelayMs : 10000);
+      page2DelayInput.value = String(Number.isFinite(state.schedule.page2SubmitDelayMs)
+        ? state.schedule.page2SubmitDelayMs
+        : DEFAULT_SCHEDULE_CONFIG.page2SubmitDelayMs);
       page2DelayField.replaceChildren(
         createElement("span", { textContent: "Page 2 settle delay (ms)" }),
         page2DelayInput

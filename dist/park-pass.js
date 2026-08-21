@@ -68,7 +68,7 @@
   const DEFAULT_SCHEDULE_CONFIG = Object.freeze({
     releaseTime: "07:00:00",
     leadSeconds: "4.000",
-    page2SubmitDelayMs: 10000
+    page2SubmitDelayMs: 30000
   });
 
   const CLOCK_CONSTANTS = Object.freeze({
@@ -2424,7 +2424,7 @@
 })();
 (() => {
   const root = window.BCParkTool = window.BCParkTool || {};
-  const { SELECTORS } = root.constants;
+  const { SELECTORS, DEFAULT_SCHEDULE_CONFIG } = root.constants;
   const {
     wait,
     waitForElement,
@@ -2541,6 +2541,65 @@
     };
   }
 
+  function buildExpectedPage2Values(booking = {}) {
+    return {
+      firstName: String(booking.firstName || "").trim(),
+      lastName: String(booking.lastName || "").trim(),
+      email: String(booking.email || "").trim(),
+      emailCheck: String(booking.email || "").trim(),
+      countryOfResidence: String(booking.countryOfResidence || booking.country || "Canada").trim() || "Canada"
+    };
+  }
+
+  function readPage2Snapshot() {
+    const firstNameElement = document.querySelector(SELECTORS.page2FirstName);
+    const lastNameElement = document.querySelector(SELECTORS.page2LastName);
+    const emailElement = document.querySelector(SELECTORS.page2Email);
+    const emailCheckElement = document.querySelector(SELECTORS.page2EmailCheck);
+    const countryElement = document.querySelector(SELECTORS.page2Country);
+    const agreeCheckbox = findAgreeCheckbox();
+
+    return {
+      firstName: firstNameElement?.value ?? null,
+      lastName: lastNameElement?.value ?? null,
+      email: emailElement?.value ?? null,
+      emailCheck: emailCheckElement?.value ?? null,
+      countryOfResidence: countryElement?.value ?? null,
+      agreeChecked: !!agreeCheckbox?.checked
+    };
+  }
+
+  function getPage2Mismatches(expected, snapshot) {
+    const mismatches = [];
+    const fields = [
+      ["first name", "firstName"],
+      ["last name", "lastName"],
+      ["email", "email"],
+      ["email confirmation", "emailCheck"],
+      ["country of residence", "countryOfResidence"]
+    ];
+
+    for (const [label, key] of fields) {
+      const expectedValue = String(expected[key] || "").trim();
+      const actualValue = snapshot[key] == null ? null : String(snapshot[key] || "").trim();
+
+      if (actualValue == null) {
+        mismatches.push(`${label} missing`);
+        continue;
+      }
+
+      if (actualValue !== expectedValue) {
+        mismatches.push(`${label}="${actualValue}" expected="${expectedValue}"`);
+      }
+    }
+
+    if (!snapshot.agreeChecked) {
+      mismatches.push("read and agree checkbox not checked");
+    }
+
+    return mismatches;
+  }
+
   async function clickNextButtonPage2(timeout = 5000) {
     console.log("[BCParkTool][page2] Waiting for Next button on Page 2 to appear...");
     const nextButton = await waitForElement(SELECTORS.page2SubmitButton, timeout);
@@ -2620,7 +2679,9 @@
 
     function schedulePage2Submit(delayMs) {
       clearPage2SubmitTimer();
-      const normalizedDelay = Number.isFinite(Number(delayMs)) ? Math.max(0, Math.round(Number(delayMs))) : 10000;
+      const normalizedDelay = Number.isFinite(Number(delayMs))
+        ? Math.max(0, Math.round(Number(delayMs)))
+        : DEFAULT_SCHEDULE_CONFIG.page2SubmitDelayMs;
       log(`[BCParkTool][page2] Scheduling Page 2 Next click in ${normalizedDelay}ms to let the token settle...`);
       settleTimerId = setTimeout(async () => {
         settleTimerId = null;
@@ -2632,42 +2693,59 @@
     }
 
     async function fillPage2Fields(booking = {}) {
-      const firstName = String(booking.firstName || "").trim();
-      const lastName = String(booking.lastName || "").trim();
-      const email = String(booking.email || "").trim();
-      const countryOfResidence = String(booking.countryOfResidence || booking.country || "Canada").trim() || "Canada";
+      const expected = buildExpectedPage2Values(booking);
+      const maxAttempts = 3;
+      let lastMismatches = [];
 
-      const firstNameElement = await waitForElement(SELECTORS.page2FirstName, 10000);
-      const lastNameElement = await waitForElement(SELECTORS.page2LastName, 10000);
-      const emailElement = await waitForElement(SELECTORS.page2Email, 10000);
-      const emailCheckElement = await waitForElement(SELECTORS.page2EmailCheck, 10000);
-      const countryElement = await waitForElement(SELECTORS.page2Country, 10000);
+      for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+        const firstNameElement = await waitForElement(SELECTORS.page2FirstName, 10000);
+        const lastNameElement = await waitForElement(SELECTORS.page2LastName, 10000);
+        const emailElement = await waitForElement(SELECTORS.page2Email, 10000);
+        const emailCheckElement = await waitForElement(SELECTORS.page2EmailCheck, 10000);
+        const countryElement = await waitForElement(SELECTORS.page2Country, 10000);
 
-      if (firstNameElement && lastNameElement && emailElement && emailCheckElement) {
-        log("[BCParkTool][page2] Form fields found on Page 2, filling in...");
-        firstNameElement.value = firstName;
-        lastNameElement.value = lastName;
-        emailElement.value = email;
-        emailCheckElement.value = email;
+        if (firstNameElement && lastNameElement && emailElement && emailCheckElement) {
+          log(`[BCParkTool][page2] Form fields found on Page 2, filling in (attempt ${attempt}/${maxAttempts})...`);
+          setNativeValue(firstNameElement, expected.firstName);
+          setNativeValue(lastNameElement, expected.lastName);
+          setNativeValue(emailElement, expected.email);
+          setNativeValue(emailCheckElement, expected.emailCheck);
 
-        firstNameElement.dispatchEvent(new Event("input", { bubbles: true }));
-        lastNameElement.dispatchEvent(new Event("input", { bubbles: true }));
-        emailElement.dispatchEvent(new Event("input", { bubbles: true }));
-        emailCheckElement.dispatchEvent(new Event("input", { bubbles: true }));
-      } else {
-        warn("[BCParkTool][page2] One or more Page 2 text inputs were not found.");
-      }
-
-      if (countryElement) {
-        const result = await selectCountryOfResidence(SELECTORS.page2Country, countryOfResidence, 10000);
-        if (result.ok) {
-          log(`[BCParkTool][page2] Country of residence selected: ${result.value || countryOfResidence}`);
+          dispatchFormEvents(firstNameElement);
+          dispatchFormEvents(lastNameElement);
+          dispatchFormEvents(emailElement);
+          dispatchFormEvents(emailCheckElement);
         } else {
-          warn(`[BCParkTool][page2] Country of residence selection may not have stuck. Current value="${result.value || "blank"}", expected="${countryOfResidence}"`);
+          warn(`[BCParkTool][page2] One or more Page 2 text inputs were not found on attempt ${attempt}/${maxAttempts}.`);
         }
-      } else {
-        warn("[BCParkTool][page2] Country of residence select not found after waiting.");
+
+        if (countryElement) {
+          const result = await selectCountryOfResidence(SELECTORS.page2Country, expected.countryOfResidence, 10000);
+          if (result.ok) {
+            log(`[BCParkTool][page2] Country of residence selected: ${result.value || expected.countryOfResidence}`);
+          } else {
+            warn(`[BCParkTool][page2] Country of residence selection may not have stuck. Current value="${result.value || "blank"}", expected="${expected.countryOfResidence}"`);
+          }
+        } else {
+          warn(`[BCParkTool][page2] Country of residence select not found after waiting on attempt ${attempt}/${maxAttempts}.`);
+        }
+
+        await clickAgreeCheckbox();
+        await wait(150);
+
+        lastMismatches = getPage2Mismatches(expected, readPage2Snapshot());
+        if (lastMismatches.length === 0) {
+          log(`[BCParkTool][page2] Page 2 values verified on attempt ${attempt}/${maxAttempts}.`);
+          return true;
+        }
+
+        if (attempt < maxAttempts) {
+          warn(`[BCParkTool][page2] Page 2 values did not stick on attempt ${attempt}/${maxAttempts}: ${lastMismatches.join("; ")}. Retrying...`);
+          await wait(250);
+        }
       }
+
+      throw new Error(`Page 2 autofill did not stick after ${maxAttempts} attempts: ${lastMismatches.join("; ")}`);
     }
 
     async function processPage2IfPresent() {
@@ -3633,7 +3711,9 @@
           "data-field": "page2SubmitDelayMs"
         }
       });
-      page2DelayInput.value = String(Number.isFinite(state.schedule.page2SubmitDelayMs) ? state.schedule.page2SubmitDelayMs : 10000);
+      page2DelayInput.value = String(Number.isFinite(state.schedule.page2SubmitDelayMs)
+        ? state.schedule.page2SubmitDelayMs
+        : DEFAULT_SCHEDULE_CONFIG.page2SubmitDelayMs);
       page2DelayField.replaceChildren(
         createElement("span", { textContent: "Page 2 settle delay (ms)" }),
         page2DelayInput
