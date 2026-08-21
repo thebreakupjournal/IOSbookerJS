@@ -67,7 +67,7 @@
 
   const DEFAULT_SCHEDULE_CONFIG = Object.freeze({
     releaseTime: "07:00:00",
-    leadSeconds: "4.000",
+    leadSeconds: "1.500",
     page2SubmitDelayMs: 30000
   });
 
